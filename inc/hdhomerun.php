@@ -7,11 +7,15 @@
     private $device_id;
     private $num_tuners;
     private $hdhomerun_path;
+    private $log_path;
     private $path;
     private $tempfile;
+    private $dbobj;
 
-    function __construct($hdhomerun_path, $device_id=NULL) {
+    function __construct($db_obj, $hdhomerun_path, $log_path, $device_id=NULL) {
+	  $this->dbobj          = $db_obj;
 	  $this->hdhomerun_path = $hdhomerun_path;
+	  $this->log_path       = $log_path;
 	  if (is_null($device_id) || empty($device_id)) {
 		$this->device_id = "FFFFFFFF";
 	  } else {
@@ -34,13 +38,8 @@
       // expect to be run once when nothing is going on.  Have to be run for each tuner available, file is for debug purposes	  
 	  // clean out old data from table
 	  $sql = "delete from channels where `device` = '$deviceID' and `tuner` = '$tuner'";
-	  try {
-			$DBH->exec($sql);
-	  }
-	  catch(PDOException $e)
-      {
-			echo $e->getMessage();
-      }	
+      $db = $this->dbobj;
+	  $db->execute($sql);
 	  // get scanning data either from file or from live pull
 	  if ($file === NULL) {
 	    $cmd = $this->hdhomerun_path . " " . $deviceID . " scan " . $tuner . " > " . $this->tempfile;
@@ -72,13 +71,7 @@
 			$sql =  "insert into channels set `device` = '$deviceID', `tuner` = '$tuner', `band` = '$band', `freq` = '$frequency', `channel` = '$channel', `channelMinor` = ";
 			$sql .= "'$program', `callsign` = '$callsign', `callsignMinor` = '$callsign_post', `fcc_channel` = '$remap', `ss` = '$ss', `snq` = '$snq', `seq` = '$seq', ";
 			$sql .= "`use` = 0";
-			try {
-				$DBH->exec($sql);
-			}
-			catch(PDOException $e)
-            {
-				echo $e->getMessage();
-            }			
+		    $db->execute($sql);
             echo " ____ Added Channel: " . $remap . "\n";					
 		}
 	  	// end of foreach loop

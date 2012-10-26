@@ -2,6 +2,11 @@
   // Include important files
   require_once(dirname(__FILE__) . "/config.php");
   require_once(dirname(__FILE__) . "/inc/tvgrid.php");
+  // Check if application has been setup
+  if (! (file_exists($DO_INSTALL))) {
+	// Redirect to setup page
+	header( 'Location: setup.php' ) ;
+  }
   // Include page specific functions
   // get current time
   $now = $_SERVER['REQUEST_TIME'];	  // returns epoc time :(
