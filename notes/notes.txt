@@ -1,0 +1,19 @@
+Design
+- hdhomerun_config is used
+- can 
+    - record program and store on web server accessible drive  (stores metadata in mysql, media on drive)
+      . programs scheduled/run via cronjob
+      . record program accesses mysql to update info, tunes and saves media to a file (possible re-indexing via ffmpeg?)
+    - view via html5 recorded program from web browser (ffw/rew)
+    - can delete a program
+    - can manually schedule a program without guide listing/info
+    - can use XMLTV guide listing to highlight guide data / shows.  Can click to record/schedule a show
+      . easy to browse listing data
+    - can search for show
+    - can record a series (when ever shown, and identify episodes already recorded so as not to re-record)
+    - can point to a media drive (readable by web server) and stream media
+      . easy search
+      . honor directory structure
+      . honor hidden filename attributes, aka ()'s content or []'s content, ignore .srt files or .idx files or none media file extensions
+- php 5.3 based, use a framework*
+- basic htauth supported or tied into central auth system?

@@ -1,0 +1,170 @@
+HTML 5 / PHP / HDHOMERUN learnings
+-----------------------------------
+
+
+HTML5 Video
+  http://en.wikipedia.org/wiki/HTML5_video
+
+<video poster="movie.jpg" controls>
+        <source src="movie.webm" type='video/webm; codecs="vp8.0, vorbis"'/>
+        <source src="movie.ogv" type='video/ogg; codecs="theora, vorbis"'/>
+        <source src="movie.mp4" type='video/mp4; codecs="avc1.4D401E, mp4a.40.2"'/>
+        <p>This is fallback content</p>
+</video>
+
+Rails Tags for HTML5 video
+  http://stackoverflow.com/questions/8146478/using-html5-video-tag-in-a-simple-rails-app
+
+You can use the video_tag helper which builds an HTML 5 tag. Video files are loaded from 'public/videos' by default.
+
+<%= video_tag "truffle1.mp4", :size => "320x240", :controls => true %>
+
+
+HTML5 / Video & Media javascript library
+  http://www.kaltura.org/project/HTML5_Video_Media_JavaScript_Library
+
+  *Uses jquery
+
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="http://html5.kaltura.org/js" > </script> 
+</head>
+<body>
+  <video id="video" style="width:544px;height:304px;" 
+    poster="http://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Elephants_Dream.ogg/seek%3D13-Elephants_Dream.ogg.jpg"
+    duration="10:53" 
+    linkback="http://www.elephantsdream.org/" >
+    <source type="video/ogg" src="http://ia311040.us.archive.org/3/items/ElephantsDream/ed_1024.ogv" >
+    <source type="video/h264" src="http://ia311040.us.archive.org/3/items/ElephantsDream/ed_hd_512kb.mp4" >
+    <track kind="subtitles" id="video_af" srclang="af" 
+         src="media/elephants_dream/elephant.afrikaans.srt"></track>
+    <track kind="subtitles" id="video_en" srclang="en"  
+         src="media/elephants_dream/elephant.english.srt"></track> 
+  </video>
+</body>
+</html>
+
+PHP - php5.3 micro frameworks - best setup + docs/tutorial
+  http://bcosca.github.com/fatfree/
+
+hello world:
+$main=require_once 'path/to/base.php';
+$main->route('GET /',
+	function() {
+		echo 'Hello, world!';
+	}
+);
+$main->run();
+
+  Blog tutorial - http://www.willis-owen.co.uk/2011/09/blog-tutorial-with-fat-free-framework/ 
+
+
+
+HDhomerun - documentations using the hdhomerun_config cmdline tool
+
+
+
+hdhomerun_config discover				=> returns id's of hdhomerun units found
+*note FFFFFFFF  can be used as a wild card for the 1st discovered device on the network
+[Output:]   hdhomerun device 1033079F found at 192.168.1.114
+
+
+channel maps => us-bcast
+
+Channel scan:
+hdhomerun_config FFFFFFFF scan /tuner0 scan0.log   => logs channels found, can be parsed...
+
+
+Tunning a channel (modulation:channel)
+hdhomerun_config FFFFFFFF set /tuner0/channel auto:60  
+
+Stop tunner
+hdhomerun_config ffffffff set /tuner0/channel none
+
+Check signal strength
+hdhomerun_config ffffffff get /tuner0/status
+
+*note for parsing:  SS = signal strength, bps = raw channel bits per second
+
+Get programs on a channel
+
+hdhomerun_config FFFFFFFF get /tuner0/channel streaminfo
+
+output format is:
+<program number>: <virtual major>.<virtual minor> [<name>] [(<flags>)]
+
+   might look like:  
+      3: 20.1 KBWB-HD
+      4: 20.4 AZTECA
+
+Saving a stream (last part is filename to capture to, mpeg2 streaming, . per second while streaming..)
+
+hdhomerun_config ffffffff save /tuner0 capture.ts
+
+   filename can be
+    null    =  no file created, used for diagnostics
+    -       =  std output, for piping operations on some platforms
+
+
+    ie:  hdhomerun_config ffffffff save /tuner0 - | vlc -
+
+Streaming to a targeted machine
+
+  hdhomerun_config ffffffff set /tuner0/target udp://192.168.1.114:5000   (can be rtp too)
+ 
+  *client machine must be listening on port (ie 5000)
+
+
+
+Full example:  Streaming to VLC
+
+hdhomerun_config discover
+hdhomerun_config ffffffff scan /tuner0 scan0.log
+hdhomerun_config ffffffff set /tuner0/channel auto:651000000
+hdhomerun_config ffffffff get /tuner0/streaminfo
+hdhomerun_config ffffffff set /tuner0/program 3       *select sub-program of channel
+hdhomerun_config ffffffff set /tuner0/target udp:192.168.1.114:5000
+
+hdhomerun_config ffffffff save /tuner0 FILENAME        *saves to filename and puts a .
+
+
+---- for streaming files either a .pls or .strm can be used ----
+
+  for a .pls it's:
+ 
+[playlist]
+numberofentries=15
+File1=http://scfire-ntc-aa04.stream.aol.com:80/stream/1074
+Title1=(#1 - 71/11500) .977 The Hitz Channel - 977MUSIC.COM - The #1 Hit Music Internet Radio Channel
+Length1=-1
+ ….
+
+  ?Can I do this with HDHOMERUN?
+
+--- HDHOME RUn doesn't support 
+
+----- php structure / files (no framework) ----
+
+  *use mysql for data storage/writes/etc
+  
+  index.php (main page, show grid.php / etc )
+
+  schedule.php (page where we schedule recordings/etc )
+
+  play.php (page where we play recorded videos/etc )
+
+  setup.php (page where we setup/scan/run system/etc )
+
+  ** Called via cron **
+  pvr_record.php    - script to capture a recording
+  pvr_daily.php     - script that runs daily to update crontab/pull data/etc.. 
+
+
+
+
+
+
+
+
+
