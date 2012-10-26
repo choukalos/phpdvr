@@ -11,7 +11,7 @@ $SD_USER = "choukalos";
 $SD_PASS = "choukalos1";
 
 $RECORDING_DIR    = dirname(__FILE__) . "/recordings/";
-$APPLICATION_NAME = "WebPVR";
+$APPLICATION_NAME = "PHPDVR";
 $FFMPEG_PATH      = "/usr/bin/ffmpeg";
 $HDHOMERUN_PATH   = "/usr/local/bin/hdhomerun_config";
 $RECORDING_SCRIPT = dirname(__FILE__) . "/mypvr_record.php";

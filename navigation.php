@@ -7,7 +7,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</a>
-		    <a class="brand" href="/">MYPVR</a>
+		    <a class="brand" href="/"><?php echo $APPLICATION_NAME; ?></a>
 		    <ul class="nav nav-pills">
 		      <li><a href="/">Guide</a></li>
 		      <li><a href="/search.php">Search</a></li>
