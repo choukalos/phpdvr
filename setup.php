@@ -1,9 +1,10 @@
+<?php require_once(dirname(__FILE__).'/config.php'); ?>
+
 <?php include 'header.php'; ?>
 
 <?php
   // script setups the system and displays UI + buttons that enable rescan/etc of services
   // Assume this script runs (in general) only once
-  require_once(dirname(__FILE__).'/config.php');
   
   // Setup functions
   function setup_create_db($DB, $DB_USER, $DB_PASS, $DB_HOST, $DB_NAME, $ROOT_DIR) {

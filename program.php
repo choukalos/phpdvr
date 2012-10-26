@@ -13,17 +13,23 @@
     $record_opt  = $_POST['record'];
     // Update DB based upon this....	
 	$schedule_manager = new schedule_manager($DBH, $RECORDING_DIR);
-//	$schedule_manager->record($program, $start_time, $channel, $channelMinor)
+
+
   }
-  $sql = "select * from pvr_programs where id = '" . $program_id . "'";
+  $sql    = "select * from pvr_programs where id = '" . $program_id . "'";
+  $result = $DB->fetch_all($sql);
+  $row    = $result[0];
+
+  $schedule_manager->record($row, $start_time, $channel, $channelMinor)
+  
 ?>
 
 <?php include "header.php" ?>
 
 <?php 
-try {
-   foreach ($DBH->query($sql) as $row) {
-?>
+//try {
+//   foreach ($DBH->query($sql) as $row) {
+//?>
 
 <li>ID: <?php echo $row['id']; ?></li>
 <li>Title: <?php echo $row['title']; ?></li>
@@ -37,16 +43,6 @@ try {
 ?>
 <li>Show Type: <?php echo $row['showType']; ?></li>
 <li>Color Code: <?php echo $row['colorCode']; ?></li>
-<?php 	
-   }
-}
-
-catch(PDOException $e)
-{
-	echo $e->getMessage();
-}
-
-?>
 <br />
 <?php
   if($row['recording']) {

@@ -18,8 +18,8 @@
      }
      public function record ($program, $start_time, $channel, $channelMinor) {
 	   // Function called from programs.php to record a single program	
-       $filename           = $this->determine_filename($program, $start_time);	
-//       ($deviceid, $tuner) = $this->get_free_tuner($start, $program['duration'], $channel, $channelMinor);       
+       $filename               = $this->determine_filename($program, $start_time);	
+       list($deviceid, $tuner) = $this->get_free_tuner($start, $program['duration'], $channel, $channelMinor);       
 	   // Add the cronjob entry
 	   $crontabtime   = $this->get_crontab_time($starttime);
 	   $crontabentry  = $crontabtime . " /usr/bin/php " . $this->recording_script . " $deviceid $tuner ";
@@ -65,7 +65,7 @@
       $deviceid = 'FFFFFFFF';
       $tuner    = 0;
       // return free device and tuner      
-//	  return ($deviceid, $tuner);
+	  return array($deviceid, $tuner);
     }
     private function determine_filename($program_data, $start_time) {
 	   // This function returns what the saved filename should be for a recording

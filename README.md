@@ -5,22 +5,22 @@ A PHP DVR designed to run on PHP 5.2 easily supported by Debian Etch NAS boxes. 
 PHP 5.2 HTML5 application to provide simple TV recording and web playback capabilities.
 
 Requirements:  
-1.  Requires php 5.2 
-2.  Requires libhdhomerun to be installed ( http://www.silicondust.com/support/hdhomerun/downloads/ )
-3.  Requires a schedules direct subscription ( http://www.schedulesdirect.org/ )
-4.  Requires a HDHomeRun box to record OTA TV
+*  Requires php 5.2 
+*  Requires libhdhomerun to be installed ( http://www.silicondust.com/support/hdhomerun/downloads/ )
+*  Requires a schedules direct subscription ( http://www.schedulesdirect.org/ )
+*  Requires a HDHomeRun box to record OTA TV
 
 Install / Setup
 ----------------
 
 Ideally this would be handled as a package for the various NAS systems.  You can manually install by:  
-1.  copy files over to web directory
-2.  sudo chown -R www-data logs recordings
-3.  sudo chgrp -R www-data logs recordings
-4.  open up config.php and update the settings as appropriate for your system
-5.  Add an .htaccess file to restrict access to this application
-6.  Open up your web browser to the appropriate address
-7.  Click on 'Setup' in the main menu bar
+*  copy files over to web directory
+*  sudo chown -R www-data logs recordings
+*  sudo chgrp -R www-data logs recordings
+*  open up config.php and update the settings as appropriate for your system
+*  Add an .htaccess file to restrict access to this application
+*  Open up your web browser to the appropriate address
+*  Click on 'Setup' in the main menu bar
 
 To Do
 -----

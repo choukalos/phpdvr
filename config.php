@@ -6,7 +6,8 @@ $DB_HOST = "localhost";
 $DB_PORT = "3306";
 $DB_USER = "root";
 $DB_PASS = "";
-$DB_NAME = "phpdvr";
+//$DB_NAME = "phpdvr";
+$DB_NAME = "webpvr";
   // Schedules Direct user/password
 $SD_USER = "choukalos";
 $SD_PASS = "choukalos1";
