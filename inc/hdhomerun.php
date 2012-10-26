@@ -24,7 +24,7 @@
 	  $path_length     = strrpos(__FILE__, "/");
 	  $this->path      = substr(__FILE__, 0, $path_length) . '/';
 	  $tempfilefnm     = 'temp_' . $this->device_id . '.txt';
-	  $this->tempfile = "{$this->path}{$tempfilefnm}";
+	  $this->tempfile = "{$this->log_path}{$tempfilefnm}";
 	
 	  echo "HDHOME Run config program located at " . $hdhomerun_path . " and using deviceid: " . $this->device_id . "\n";
 	  return $this;
@@ -91,20 +91,22 @@
 	    $this->scan_channels($value, 1);	
 	  }
 	  // Post processing work done now...
-	  return true;
+	  if (is_null($devices)) { return false; } else { return true; }
     }
     public function discover() {
+	  $devices = array();	
 	  $cmd     = $this->hdhomerun_path . " discover > {$this->tempfile}";
 	  $this->execute($cmd);
-	  $rows    = file($this->tempfile, FILE_IGNORE_NEW_LINES);
-	  $devices = array();
-	  foreach($rows as $value) {
-	    if (preg_match('/device ([A-Fa-f0-9]+)/', $value, $matches)) {
-	      array_push($devices, $matches[1]);
-	      echo "Found HDHOMERUN Device '" . $matches[1] . "' on local network\n";
-	    }	
+	  if (file_exists($this->tempfile)) {	
+	    $rows    = file($this->tempfile, FILE_IGNORE_NEW_LINES);
+	    foreach($rows as $value) {
+	      if (preg_match('/device ([A-Fa-f0-9]+)/', $value, $matches)) {
+	        array_push($devices, $matches[1]);
+	        echo "Found HDHOMERUN Device '" . $matches[1] . "' on local network\n";
+	      }	
+	    }
+	    unlink($this->tempfile);
 	  }
-	  unlink($this->tempfile);
 	  return $devices;
     }
   	private function set_channel($tuner, $channel, $pid) {

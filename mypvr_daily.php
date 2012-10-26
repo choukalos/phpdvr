@@ -6,7 +6,7 @@
  
   echo "MYPVR_DAILY - Starting Daily Tasks ... \n";
   // Update and pull schedules direct data
-  $guidedata = new schedules_direct($SD_USER, $SD_PASS, $DBH);
+  $guidedata = new schedules_direct($SD_USER, $SD_PASS, $DB);
   $sd_data = $guidedata->fetch(0);
   // Fetch 14 days forward looking of guide data
 //  $sd_data = $guidedata->fetch(14);

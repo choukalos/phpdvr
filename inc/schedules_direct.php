@@ -7,14 +7,14 @@
   class schedules_direct {
 
     private $data_url='http://docs.tms.tribune.com/tech/tmsdatadirect/schedulesdirect/tvDataDelivery.wsdl';
-    private $dbh;
+    private $db;
     private $login;
     private $password;
 
-    function __construct($login, $password, $dbh) {
+    function __construct($login, $password, $db_obj) {
       $this->login    = $login;
       $this->password = $password;
-      $this->dbh      = $dbh;
+      $this->db       = $db_obj;
 	  return $this;
     }	
     public function update($data) {
@@ -119,14 +119,10 @@
     }
     private function insert_data($sql) {
 	  // This functions uses the DBH passed in during object construction
-	  try {
-		$this->dbh->exec($sql);
-	  }
-	  catch(PDOException $e)
-      {
-		echo $e->getMessage();
-      }	  
-    }
+	  $db     = $this->db;
+	  $result = $db->execute($sql);
+	  return $result;
+	}
 	// end of class data
   }
 

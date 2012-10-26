@@ -7,7 +7,6 @@
 
   // require 
   require_once(dirname(__FILE__).'/config.php');
-  require_once(dirname(__FILE__).'/inc/hdhomerun.php');
 
   // clean up the argv array for php and optionally the program name
   if (array_shift($argv) == "php") array_shift($argv);
@@ -34,7 +33,7 @@
   $savename     = $RECORDING_DIR . $savename . ".ts";
   $current_time = time();
   echo " ... Setting up tuner " . $HDHOMERUN_PATH . " id: " . $device_id . "\n";
-  $hdhomerun = new hardware($HDHOMERUN_PATH, $device_id);
+  $hdhomerun = new hardware($DB, $HDHOMERUN_PATH, $LOG_DIR, $device_id);
   echo " ... Starting Recording \n";
   $hdhomerun->do_recording($tuner, $channel, $prog, $savename, $minduration);
   echo " ... Finished Recording \n";

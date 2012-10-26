@@ -37,7 +37,7 @@ create table `channels` (
   `snq`           int(3) not null,
   `seq`           int(3) not null,
   `use`           int(1) not null,
-  `station_id`    int(10) default null
+  `station_id`    int(10) null default null,
   KEY `device_channel_minor` (`device`, `channel`, `channelMinor`),
   KEY `channel_minor` (`channel`, `channelMinor`)
 ) ENGINE=MyISM DEFAULT CHARSET=latin1;

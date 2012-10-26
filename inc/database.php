@@ -42,6 +42,16 @@
 	    catch(PDOException $e) { echo $e->getMessage(); }	
 	    return $result;
 	  }
+	  public function close() {
+	    $this->dbh = null;
+	    return;	
+	  }
+	  public function change_database($database) {
+		$this->dbh = null;
+		$dbh = $this->connect($database);
+		$this->dbh = $dbh;
+		return $dbh;
+	  }
 	  // ------------ Private Functions -----------
 	  private function connect($database) {
 		$host     = $this->host;
@@ -50,13 +60,14 @@
 		$database = $this->database;
 	    try { 
 		  if (is_null($database)) {
-			$dbh = new PDO("mysql:host=$host",$user,$password); 			
+			$dbh = new PDO("mysql:host=$host",$user,$password); 
+			return $dbh;			
 		  } else {
 			$dbh = new PDO("mysql:host=$host;dbname=$database",$user,$password); 
+			return $dbh;
 		  }
 	    }
 	    catch (PDOException $e) { echo $e->getMessage(); }
-	    return $dbh; 
       }
       // ------------ End of Class
   }
