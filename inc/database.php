@@ -14,33 +14,49 @@
 	    $this->host     = $host;
 	    $this->database = $database;
 	    $this->dbh      = $this->connect($database);
+echo "DBOBJ connected and got:\n";
+print_r($this->dbh);
+echo "\n";
+
 	    return $this;
      }
 	
 	  public function query($sql) {
 	    try {
-		  $result = $this->dbh->query($sql);
+		  $db = $this->dbh;
+		  $result = $db->query($sql);
+echo "DBOBJ Query $sql got \n";
+var_dump($result);
+echo "\n";			
+		  return $result;
 	    } 
 	    catch(PDOException $e) { echo $e->getMessage(); }	
-	    return $result;
 	  }
 
 	  public function fetch_all($sql) {
 	    try {
-		  $sth  = $this->dbh->prepare($sql);
+		  $db = $this->dbh;
+		  $sth  = $db->prepare($sql);
 		  $sth->execute();
 		  $data = $sth->fetchAll();
+		  return $data;
 	    }
-	    catch(PDOException $e) { echo $e->getMessage(); }
-	    return $data;	
+	    catch(PDOException $e) { echo $e->getMessage(); }	
 	  }  
 
-	  public function execute($sql) {	
+	  public function execute($sql) {
 		try {
-		 $result = $this->dbh->exec($sql);
+		 $db = $this->dbh;		
+		 $result = $db->exec($sql);
+
+echo "DBOBJ Execute $sql got \n";
+print_r($result);
+echo "\n";		
+		
+		
+		 return $result;
 	    } 
 	    catch(PDOException $e) { echo $e->getMessage(); }	
-	    return $result;
 	  }
 	  public function close() {
 	    $this->dbh = null;
@@ -50,7 +66,13 @@
 		$this->dbh = null;
 		$dbh = $this->connect($database);
 		$this->dbh = $dbh;
-		return $dbh;
+echo "DBOBJ change db.  got\n";
+print_r($dbh);
+echo "\n";		
+		return $this;
+	  }
+	  public function check() {
+	    echo "Its Alive!\n";	
 	  }
 	  // ------------ Private Functions -----------
 	  private function connect($database) {

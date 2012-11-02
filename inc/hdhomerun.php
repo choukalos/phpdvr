@@ -1,6 +1,7 @@
 <?php
   
 //  require_once(dirname(__FILE__).'/cron.php');
+  require_once(dirname(__FILE__).'/database.php');
 
   class hardware {
   
@@ -76,7 +77,7 @@
 		}
 	  	// end of foreach loop
 	  }
-	  unlink($this->tempfile);
+//	  unlink($this->tempfile);
 	  // Return
 	  return true;	  
     }

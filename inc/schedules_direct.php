@@ -11,7 +11,7 @@
     private $login;
     private $password;
 
-    function __construct($login, $password, $db_obj) {
+    function __construct($login, $password, &$db_obj) {
       $this->login    = $login;
       $this->password = $password;
       $this->db       = $db_obj;
@@ -117,6 +117,12 @@
 //print_r($data);
       return $data;
     }
+    public function test_insert_data($sql) {
+	  $result = $this->db->execute($sql);
+	  return $result;
+    }
+
+
     private function insert_data($sql) {
 	  // This functions uses the DBH passed in during object construction
 	  $db     = $this->db;

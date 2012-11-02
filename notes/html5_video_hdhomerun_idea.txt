@@ -1,6 +1,11 @@
 HTML 5 / PHP / HDHOMERUN learnings
 -----------------------------------
 
+Need to convert with FFMPEG to handle streaming to iphone/etc...
+  checkout:  http://www.darrenpopham.com/?p=483
+
+
+
 
 HTML5 Video
   http://en.wikipedia.org/wiki/HTML5_video

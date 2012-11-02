@@ -29,5 +29,16 @@
 	 echo "No data returned for sql: $sql \n";
   } 
 ?>
+<!-- Manually add hardcoded video player for testing purposes -->
+<video width="1024" height="750" controls="controls">
+  <source src="./recordings/test.ts"  type="video/mpeg2">  <!-- webkit video is .MOV -->
+  <source src="./recordings/test.mov" type="video/mp4">
+  <source src="./recordings/test.ogg" type="video/ogg">
+  <source src="./recordings/test.webm" type="video/webm">
+	 <object data="./recordings/test.mp4" width="320" height="240">
+	   <embed src="./recordings/test.ts" width="320" height="240">
+	 </object>	
+  Your browser does not support the HTML5 video tag please try the latest Safari, Firefox or Chrome browsers.
+</video>
 
 <?php include "footer.php" ?>
