@@ -103,7 +103,7 @@
     public function fetch($days_out=0) {
       // This function fetches schedules direct data and passes it back
       if ($days_out > 0) {
-        $start=gmdate("Y-m-d\T04:59:59\Z",time()+3600*24*($days_out));
+        $start=gmdate("Y-m-d\T04:59:59\Z",time());
         $stop =gmdate("Y-m-d\T05:00:00\Z",time()+3600*24*($days_out+1));
        } else {
         $start=gmdate("Y-m-d\T04:59:59\Z",time());
@@ -114,7 +114,7 @@
                                                       'login'      => strtolower($this->login),
                                                       'password'   => $this->password));
       $data = $client->download($start,$stop);
-//print_r($data);
+      //print_r($data);
       return $data;
     }
     public function test_insert_data($sql) {
