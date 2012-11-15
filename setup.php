@@ -77,7 +77,9 @@ echo "\n\n";
     if ($rc) {
 	  // all good now...
 	  $fh = fopen("{$DO_INSTALL}", "w");
+	  fwrite($fh,"Installed\n");
 	  fclose($fh);
+echo "<p>creating $DO_INSTALL file to flag system install has been completed </p>";
 	  echo "<p><b>Completed Setup</b></p>\n";
 	  echo "<br/><p>You will be redirected in 5 seconds</p>\n";
 	  // header("refresh: 5; index.php");	

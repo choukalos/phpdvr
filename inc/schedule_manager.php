@@ -7,12 +7,12 @@
 	 private $tuner_array;
 	 private $available;
 	 private $crontab;
-	 private $dbh;
+	 private $dbobj;
 	
-     function __construct($dbh, $recording_directory) {
+     function __construct(database $dbobj, $recording_directory) {
 	   $this->crontab          = new crontab_manager();
 	   $this->recording_script = dirname(dirname(__FILE__)) . "/mypvr_record.php";
-	   $this->dbh              = $dbh;
+	   $this->dbobj            = $dbobj;
 	   $this->recording_dir    = $recording_directory;
 	   return $this;
      }
@@ -30,7 +30,7 @@
 	   $sql .= ", start_time = '" . $starttime . "', duration = " . $program['duration'];
 	   $sql .= ", filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
 	   $sql .= ", tuner = $tuner, channel = $channel, channelMinor = $channelMinor ";
-	   $this->db_insert($this->dbh,$sql);
+	   $this->dbobj->execute($sql);
 	   return true;
      }
 
@@ -58,7 +58,7 @@
     private function get_free_tuner($starttime, $program_data, $channel, $channelMinor) {
       // This function assigns device and tuner
       $sql     = "select * from channels where channel = $channel and channelMinor = $channelMinor";      
-      $results = $this->db_query($this->dbh, $sql);
+      $results = $this->dbobj->fetch_all($sql);
 
       // Imp later -> need to scan installed devices
 
@@ -112,22 +112,6 @@
      private function datetime_to_epoctime($datetime) {
 	   return date('F jS', strtotime($datetime));
      }	
-     private function db_insert($dbh, $sql) {
-		try {
-		 $result = $dbh->exec($sql);
-	    } 
-	    catch(PDOException $e) { echo $e->getMessage(); }	
-	    return $result;
-	 }
-	 private function db_query($dbh, $sql) {
-	    try {
-		  $sth  = $dbh->prepare($sql);
-		  $sth->execute();
-		  $data = $sth->fetchAll();
-	    }
-	    catch(PDOException $e) { echo $e->getMessage(); }
-	    return $data;	
-	 }
 	 // End of Class
    }
 

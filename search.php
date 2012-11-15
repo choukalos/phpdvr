@@ -21,7 +21,7 @@
 <?php
   if ($search_term !== null) {
 	// Run the search and return the results
-	$result = db_query($DBH, $sql);
+	$result = $DB->fetch_all($sql);
 	// echo "<p>Found " . count($result, COUNT_RECURSIVE) . " programs.</p>\n"; // - doesnt work returns 1 when it should have a higher value
 ?>
 	<table class="table table-condensed table-hover">

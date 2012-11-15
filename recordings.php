@@ -19,7 +19,7 @@
 
 <?php
   $sql    = "select * from recording";
-  $result = db_query($DBH, $sql);
+  $result = $DB->fetch_all($sql);
   if ($result !== false) {
     foreach ($result as $row) {
 	  echo $row['station_id'] . '-' . $row['program_id'] . '-' . $row['start_time'] . '-' . $row['duration'];

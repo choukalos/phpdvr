@@ -40,7 +40,7 @@
   $tv_grid = new tvgrid($beg_hour);
   // Build the drop down query
   $sql_dropdown       = "select cast(time as date) from pvr_schedule where time >= '$now_date' group by cast(time as date)";
-  $dropdown_selection = db_fetch_all($DBH,$sql_dropdown);
+  $dropdown_selection = $DB->fetch_all($sql_dropdown);
 ?>
 <?php include "header.php"; ?>
 
@@ -70,7 +70,7 @@
 
 <?php
    // call the SQL and add the guide data
-   $result = db_query($DBH, $sql);
+   $result = $DB->query($sql);
    if ($result !== false) {
 	 echo $tv_grid->generate($result);
    } else {

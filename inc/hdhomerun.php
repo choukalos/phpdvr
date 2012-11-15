@@ -13,7 +13,7 @@
     private $tempfile;
     private $dbobj;
 
-    function __construct($db_obj, $hdhomerun_path, $log_path, $device_id=NULL) {
+    function __construct(database $db_obj, $hdhomerun_path, $log_path, $device_id=NULL) {
 	  $this->dbobj          = $db_obj;
 	  $this->hdhomerun_path = $hdhomerun_path;
 	  $this->log_path       = $log_path;

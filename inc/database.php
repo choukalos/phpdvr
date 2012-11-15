@@ -14,10 +14,7 @@
 	    $this->host     = $host;
 	    $this->database = $database;
 	    $this->dbh      = $this->connect($database);
-echo "DBOBJ connected and got:\n";
-print_r($this->dbh);
-echo "\n";
-
+        $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);	
 	    return $this;
      }
 	
@@ -25,9 +22,6 @@ echo "\n";
 	    try {
 		  $db = $this->dbh;
 		  $result = $db->query($sql);
-echo "DBOBJ Query $sql got \n";
-var_dump($result);
-echo "\n";			
 		  return $result;
 	    } 
 	    catch(PDOException $e) { echo $e->getMessage(); }	
@@ -48,12 +42,6 @@ echo "\n";
 		try {
 		 $db = $this->dbh;		
 		 $result = $db->exec($sql);
-
-echo "DBOBJ Execute $sql got \n";
-print_r($result);
-echo "\n";		
-		
-		
 		 return $result;
 	    } 
 	    catch(PDOException $e) { echo $e->getMessage(); }	
@@ -66,9 +54,6 @@ echo "\n";
 		$this->dbh = null;
 		$dbh = $this->connect($database);
 		$this->dbh = $dbh;
-echo "DBOBJ change db.  got\n";
-print_r($dbh);
-echo "\n";		
 		return $this;
 	  }
 	  public function check() {

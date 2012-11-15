@@ -12,15 +12,14 @@
     $schedule_id = $_POST['station_id'];
     $record_opt  = $_POST['record'];
     // Update DB based upon this....	
-	$schedule_manager = new schedule_manager($DBH, $RECORDING_DIR);
+	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
+//	$schedule_manager->record($row, $start_time, $channel, $channelMinor);
 
 
   }
   $sql    = "select * from pvr_programs where id = '" . $program_id . "'";
   $result = $DB->fetch_all($sql);
   $row    = $result[0];
-
-  $schedule_manager->record($row, $start_time, $channel, $channelMinor)
   
 ?>
 

@@ -11,7 +11,7 @@
     private $login;
     private $password;
 
-    function __construct($login, $password, &$db_obj) {
+    function __construct($login, $password, database $db_obj) {
       $this->login    = $login;
       $this->password = $password;
       $this->db       = $db_obj;
