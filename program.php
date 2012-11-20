@@ -13,34 +13,28 @@
     $station_id  = $_POST['station_id'];
     $program_time= $_POST['time'];
     $record_opt  = $_POST['record'];
-    // Update DB based upon this....	
-echo "<p>Got:  $program_id / $station_id / $program_time doing $record_opt \n</p>";
-    $stationsql  = "select * from pvr_stations where station_id = " . $station_id;
-    $chandetail  = $DB->fetch_all($stationsql);
-var_dump($chandetail);
-    $channel     = $chandetail["device_channel"];
-    $channelMinor= $chandetail["device_channelMinor"];
-	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
-	$schedule_manager->record($row, $program_time, $channel, $channelMinor);
-var_dump($record_opt);   
-
   }
-  $sql    = "select * from pvr_programs where id = '" . $program_id . "'";
+
+//echo "<p>Caught : $program_id on $station_id at $program_time with opt $record_opt</p>\n";
+//var_dump($_POST);
+
+  $sql  = "select * from pvr_programs where program_id = '" . $program_id . "' and station_id = " . $station_id;
+  $sql .= " and `time` = '" . $program_time . "'";
   $result = $DB->fetch_all($sql);
   $row    = $result[0];
-  
+  if (! $_GET['id']) {
+    // POST so handle recording scheduler
+    $channel     = $row["device_channel"];
+    $channelMinor= $row["device_channelMinor"];
+	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
+	$schedule_manager->record($record_opt, $program_time, $channel, $channelMinor, $row);
+  }
+  // Now handle page output
 ?>
 
 <?php include "header.php" ?>
 
-<?php 
-
-echo "Caught - $program_id on $station_id at $program_time \n";
-//try {
-//   foreach ($DBH->query($sql) as $row) {
-//?>
-
-<li>ID: <?php echo $row['id']; ?></li>
+<li>ID: <?php echo $row['program_id']; ?></li>
 <li>Title: <?php echo $row['title']; ?></li>
 <li>Subtitle:  <?php echo $row['subtitle']; ?></li>
 <li>Description: <?php echo $row['description']; ?></li>
@@ -66,9 +60,9 @@ echo "Caught - $program_id on $station_id at $program_time \n";
 <br />
 <!-- need to wrap in a form to do an ajax submit back to program.php to setup recording/etc... -->
 <form method="post" action="program.php">
-  <label class="radio"> <input type="radio" name='record' value='no'   <?php if(! $row['recording']) { echo "checked"; } ?> >Do Not Record </label>
-  <label class="radio"> <input type="radio" name='record' value='once' <?php if(($row['recording']) && !($row['season_pass'])) { echo "checked"; } ?> >Record Once</label>
-  <label class="radio"> <input type="radio" name='record' value='season <?php if($row['season_pass']) { echo "checked"; } ?>'>Always Record</label>
+  <label class="radio"> <input type="radio" id='record' name='record' value='no'   <?php if(!($row['recording']) and !($row['season_pass'])) { echo "checked"; } ?> >Do Not Record </label>
+  <label class="radio"> <input type="radio" id='record' name='record' value='once' <?php if(($row['recording']) && !($row['season_pass'])) { echo "checked"; } ?> >Record Once</label>
+  <label class="radio"> <input type="radio" id='record' name='record' value='season' <?php if($row['season_pass']) { echo "checked"; } ?>'>Always Record</label>
   <input type='hidden' name='id' id='id' value="<?php echo $program_id ?>">
   <input type='hidden' name='station_id' id='station_id' value ="<?php echo $station_id ?>">
   <input type='hidden' name='time' id='time' value="<?php echo $program_time ?>">

@@ -27,8 +27,18 @@
 		   $this->last_channel = $row['device_fccChannelNumber'];
 	     }
 	     // Add program found in row to the Grid
+	     if ($row['season_pass'] == '1') {
+		   // is a season's pass
+		   $out .= "<div class='bar bar-warning' ";
+	     } elseif ($row['recording'] == '1') {
+		   // is a single recording
+		   $out .= "<div class='bar bar-danger' ";
+	     } else {
+		   // not marked, show normally
+		   $out .= "<div class='bar bar-success' ";
+	     }
 	     // ToDo:  chg bar-success to bar-warning (orange) or bar-danger (red) if show is scheduled to be recorded
-	     $out .= "<div class='bar bar-success' style='width:" . ($row['duration'] / 30) * $this->per_width() . "%'>";
+	     $out .= "style='width:" . ($row['duration'] / 30) * $this->per_width() . "%'>";
 	     $out .= "<a href='program.php?id=" . $row['program_id'] . "&station_id=" . $row['station_id'] . "&time=";
 	     $out .= $row['time'] . "'>" . $row['title'] . "</a></div>\n";	
        }

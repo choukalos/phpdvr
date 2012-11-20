@@ -108,7 +108,7 @@ CREATE TABLE `recording` (
 
 -- SYS:  series passes -> use this table to id series that we'll constantly be queuing up recordings for ...
 CREATE TABLE `series_pass` (
-  `series` int(11) NOT NULL,
+  `series` char(40) NOT NULL,
   `title`  varchar(40) NOT NULL,
   PRIMARY KEY (`series`)	
 ) ENGINE=MyISAM CHARSET=latin1;
@@ -199,7 +199,8 @@ CREATE VIEW pvr_stations as
     d.callSignMinor,
     d.fcc_channel;
 
--- This view is used to populate the tv guide, program_id is used to show detail on a program
+-- This view is used to populate the tv guide, program_id is used to show detail on a program and ties into 
+-- the recording tables to identify if a show is tagged for season or one time recording
 CREATE VIEW pvr_schedule as
   select
     a.station_id,
@@ -218,20 +219,6 @@ CREATE VIEW pvr_schedule as
 	a.part_number,
 	a.part_total,
 	a.record,
-	b.title,
-	b.subtitle,
-	b.description,
-	b.showType,
-	b.colorCode,
-	b.series,
-	b.syndicatedEpisodeNumber,
-	b.originalAirDate
-  from
-   (pvr_stations c left join schedules a on (c.station_id = a.station_id)) left join programs b on (a.program_id = b.id);
-
-CREATE VIEW pvr_programs as
-  select 
-    p.id,
     p.title,
     p.subtitle,
     p.description,
@@ -241,13 +228,15 @@ CREATE VIEW pvr_programs as
     p.syndicatedEpisodeNumber,
     p.originalAirDate,
     if(r.program_id is not null, "1","0") as recording,
-    r.deviceid,
-    r.tuner,
-    r.start_time,
-    r.duration,
+    r.deviceid as recording_device_id,
+    r.tuner as recording_tuner,
+    r.start_time as recording_start_time,
+    r.duration as recording_duration,
     if(s.series is not null, "1", "0") as season_pass
   from 
-    (programs p left join recording r on (p.id = r.program_id)) left join series_pass s on (p.series = s.series);
+    ( ((pvr_stations c left join schedules a on (c.station_id = a.station_id)) left join programs p 
+       on (a.program_id = p.id)) left join recording r on (p.id = r.program_id))
+        left join series_pass s on (p.series = s.series);
 
 /* SQL to update channels with station_id post channel scan - assume a split on fcc_channel maps to lineups channel/channelMinor columns)
 update channels inner join all_stations 

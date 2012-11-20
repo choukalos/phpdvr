@@ -16,21 +16,52 @@
 	   $this->recording_dir    = $recording_directory;
 	   return $this;
      }
-     public function record ($program, $start_time, $channel, $channelMinor) {
-	   // Function called from programs.php to record a single program	
-       $filename               = $this->determine_filename($program, $start_time);	
-       list($deviceid, $tuner) = $this->get_free_tuner($start, $program['duration'], $channel, $channelMinor);       
-	   // Add the cronjob entry
-	   $crontabtime   = $this->get_crontab_time($starttime);
-	   $crontabentry  = $crontabtime . " /usr/bin/php " . $this->recording_script . " $deviceid $tuner ";
-	   $crontabentry .= "$channel $channelMinor " . $program['duration'] . " $filename > /dev/null";
-	   // Add the DB entry
-	   $sql  = "insert replace into recording set program_id = '" . $program['program_id'] ."'";
-	   $sql .= ", series = '" . $program['series'] . "', series = '" . $program['series'] . "'";
-	   $sql .= ", start_time = '" . $starttime . "', duration = " . $program['duration'];
-	   $sql .= ", filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
-	   $sql .= ", tuner = $tuner, channel = $channel, channelMinor = $channelMinor ";
-	   $this->dbobj->execute($sql);
+     public function record ($recording_type, $start_time, $channel, $channelMinor, array $program) {
+	
+echo "Got |$recording_type|\n";
+	
+	   switch ($recording_type) {
+		 case 'once':
+		   $this->record_once($start_time, $channel, $channelMinor, $program);
+		   break;
+		 case 'season':
+		   $this->record_season($program);
+		   break;
+		 case 'no':
+           if ($program['season_pass']) {
+	echo "Canceling Season\n";
+	          $this->cancel_season($program['series']);
+           } elseif ($program['recording']) {
+	echo "Canceling recording\n";
+	          $this->cancel_recording();
+           }		   
+		 default:
+	   }
+	   return;
+	
+     }
+     public function record_once ($start_time, $channel, $channelMinor, array $program) {
+	   // see if program already queued up for recording
+	   if ( !$this->is_recorded($program_id, $channel, $channelMinor, $start_time) ) {
+	     // then queue up program for recording
+         $filename               = $this->determine_filename($program, $start_time);	
+         list($deviceid, $tuner) = $this->get_free_tuner($start_time, $program['duration'], $channel, $channelMinor);       
+	     // Add the cronjob entry
+	     $crontabtime   = $this->get_crontab_time($start_time);
+	     $crontabentry  = $crontabtime . " /usr/bin/php " . $this->recording_script . " $deviceid $tuner ";
+	     $crontabentry .= "$channel $channelMinor " . $program['duration'] . " $filename > /dev/null";
+	     // Add the DB entry
+	     $sql  = "insert into recording set program_id = '" . $program['program_id'] ."'";
+	     $sql .= ", series = '" . $program['series'] . "'" ;
+	     $sql .= ", start_time = '" . $start_time . "', duration = " . $program['duration'];
+	     $sql .= ", filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
+	     $sql .= ", tuner = $tuner, channel = $channel, channelMinor = $channelMinor ";
+	     $rc   = $this->dbobj->execute($sql);
+	     if ($rc == false) {
+		   return false;
+	     }
+	   }
+	   // if skip or successfully queued return true
 	   return true;
      }
 
@@ -42,19 +73,64 @@
 	   // remove from DB
 	
      }
-     public function schedule_season() {
+     public function record_season(array $program) {
 	   // call this to schedule a seasons pass for a series
+	   $sql  = "insert ignore into series_pass set series = '" . $program['series'] . "', title = '";
+	   $sql .= $program['title'] . "'";
+	   $rc   = $this->dbobj->execute($sql);
+	   $this->update_schedule($program['series']);
+	   return true;
+     }
+     public function cancel_recording() {
+	   // call this to cancel a single recording
 	
      }
-     public function cancel_season() {
+     public function cancel_season($series) {
 	   // call this to cancel a seasons pass for a series
-	
+	   $sql    = "select * from recordings where series = '" . $series . "'";
+	   $result = $this->dbobj->fetch_all($sql);
+	   $count  = 0;
+	   foreach ($result as $row) {
+	     // go through each row and pull information to delete respective recordings and cronjobs
+	     $this->cancel_schedule( $row['filename'] );
+	     $count += 1;
+	   } 
+	   $sql    = "delete from recordings where series = '" . $series . "'";
+	   $result = $this->dbobj->fetch_all($sql);
+	   if ($result != $count) {
+ echo "Huh?  Wrong number of deleted cronjobs?! think $result -deleted--> $count\n";
+	   }
+	   return;
      }
-     public function update_schedule() {
+     public function update_schedule($series = null) {
 	   // This function is called daily based on updated SD data
 	   // to update the schedule for season passes where new episodes are detected
-	
+	   if (is_null($series)) {
+		 // Called by daily program, refresh everything
+		 $sql = "select * from pvr_schedule where season_pass = 1";
+	   } else {
+		 // Called by record script, only refresh for a particular series
+		 $sql = "select * from pvr_schedule where season_pass = 1 and series = '" . $series . "'";
+	   }
+	   $result = $this->dbobj->fetch_all($sql);
+	   foreach ($result as $row) {
+		 // Loop through the result rows
+	   }
+	   // finished updating schedule
+	   return;
      }
+    // This function is called to see if a recording is already marked in the recording table
+    // to prevent duplicates / etc
+    private function is_recorded($program_id, $channel, $channelMinor, $start_time) {
+	  $sql = "select * from recording where program_id = '" . $program_id . "' and ";
+	  $sql.= "start_time = '" . $start_time . "' and channel = $channel and channelMinor = ";
+	  $sql.= "$channelMinor";
+	  $result = $this->dbobj->fetch_all($sql);
+	  if (is_null($result)) {
+		return false;
+	  } 
+	  return true;
+    }
     private function get_free_tuner($starttime, $program_data, $channel, $channelMinor) {
       // This function assigns device and tuner
       $sql     = "select * from channels where channel = $channel and channelMinor = $channelMinor";      
@@ -67,25 +143,25 @@
       // return free device and tuner      
 	  return array($deviceid, $tuner);
     }
-    private function determine_filename($program_data, $start_time) {
+    private function determine_filename(array $program, $start_time) {
 	   // This function returns what the saved filename should be for a recording
-	   if ($program_data['series'] === '') {
+	   if ($program['series'] === '') {
 	      // Not a series - a one off program, but be careful their could be repeats of the title:subtitle combo...	
-	      if ($program_data['subtitle']) {
-		    $name = $program_data['title'] . $program_data['subtitle'];
+	      if ($program['subtitle']) {
+		    $name = $program['title'] . $program['subtitle'];
 	      } else {
-		    $name = $program_data['title'] . "(" . $start_time . ")";
+		    $name = $program['title'] . "(" . $start_time . ")";
 	      }
 	   } else {
 	      // This is a series, name based of title:subtitle (assuming there is a subtitle filled in )
-          if (is_null($program_data['subtitle']) or ($program_data['subtitle'] === '')) {
-	        if ($program_data['syndicatedEpisodeNumber'] !== '' or is_null($program_data['syndicatedEpisodeNumber']) ) {
-		      $name = $program_data['title'] . " Episode " . $program_data['syndicatedEpisodeNumber'];
+          if (is_null($program['subtitle']) or ($program['subtitle'] === '')) {
+	        if ($program['syndicatedEpisodeNumber'] !== '' or is_null($program['syndicatedEpisodeNumber']) ) {
+		      $name = $program['title'] . " Episode " . $program['syndicatedEpisodeNumber'];
 	        } else {
-	          $name = $program_data['title'] . " Episode " . $start_time;
+	          $name = $program['title'] . " Episode " . $start_time;
 	        }
           } else {
-	        $name = $program_data['title'] . " - " . $program_data['subtitle'];
+	        $name = $program['title'] . " - " . $program['subtitle'];
           }     
 	   }
 	   // end of naming logic, cleanse name to ensure file has no special characters or spaces
@@ -96,8 +172,8 @@
      private function get_crontab_time($mysql_format) {
 	   // This function takes a mysql format datetime and converts to a cronjob row
 	   $date        = DateTime::createFromFormat("Y-m-d H:i:s",$mysql_format);
-		print_r($date);
-		echo "\n";
+print_r($date);
+echo "\n";
 	   $min         = $date->format("i");  // minutes with leading zeros (hope that's okay)
 	   $hour        = $date->format("G");  // 24 hour format without leading zeros
 	   $dayofmonth  = $date->format("j");  // 1 to 31, no leading zeros
