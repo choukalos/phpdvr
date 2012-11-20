@@ -29,7 +29,8 @@
 	     // Add program found in row to the Grid
 	     // ToDo:  chg bar-success to bar-warning (orange) or bar-danger (red) if show is scheduled to be recorded
 	     $out .= "<div class='bar bar-success' style='width:" . ($row['duration'] / 30) * $this->per_width() . "%'>";
-	     $out .= "<a href='program.php?id=" . $row['program_id'] . "'>" . $row['title'] . "</a></div>\n";	
+	     $out .= "<a href='program.php?id=" . $row['program_id'] . "&station_id=" . $row['station_id'] . "&time=";
+	     $out .= $row['time'] . "'>" . $row['title'] . "</a></div>\n";	
        }
 	   // end generate functions
 	   return $out;

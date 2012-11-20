@@ -5,20 +5,23 @@
   // Also needs code to AJAX post data back to DB is recording is selected
   if ($_GET['id']) {
     $program_id  = $_GET['id'];
-    $schedule_id = $_GET['station_id'];
+    $station_id  = $_GET['station_id'];
+    $program_time= $_GET['time'];
   } else {
     // Post 
     $program_id  = $_POST['id'];
-    $schedule_id = $_POST['station_id'];
+    $station_id  = $_POST['station_id'];
+    $program_time= $_POST['time'];
     $record_opt  = $_POST['record'];
     // Update DB based upon this....	
-    $stationsql  = "select * from pvr_stations where station_id = " . $schedule_id;
+echo "<p>Got:  $program_id / $station_id / $program_time doing $record_opt \n</p>";
+    $stationsql  = "select * from pvr_stations where station_id = " . $station_id;
     $chandetail  = $DB->fetch_all($stationsql);
 var_dump($chandetail);
     $channel     = $chandetail["device_channel"];
     $channelMinor= $chandetail["device_channelMinor"];
 	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
-	$schedule_manager->record($row, $start_time, $channel, $channelMinor);
+	$schedule_manager->record($row, $program_time, $channel, $channelMinor);
 var_dump($record_opt);   
 
   }
@@ -31,6 +34,8 @@ var_dump($record_opt);
 <?php include "header.php" ?>
 
 <?php 
+
+echo "Caught - $program_id on $station_id at $program_time \n";
 //try {
 //   foreach ($DBH->query($sql) as $row) {
 //?>
@@ -66,6 +71,7 @@ var_dump($record_opt);
   <label class="radio"> <input type="radio" name='record' value='season <?php if($row['season_pass']) { echo "checked"; } ?>'>Always Record</label>
   <input type='hidden' name='id' id='id' value="<?php echo $program_id ?>">
   <input type='hidden' name='station_id' id='station_id' value ="<?php echo $station_id ?>">
+  <input type='hidden' name='time' id='time' value="<?php echo $program_time ?>">
   <a class="btn btn-primary" href="index.php">Back</a>
   <input type='submit' value="Save" class="btn">	
 </form>	
