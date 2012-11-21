@@ -18,14 +18,28 @@
      }
      public function record ($recording_type, $start_time, $channel, $channelMinor, array $program) {
 	
-echo "Got |$recording_type|\n";
+echo "Got |$recording_type|";
 	
 	   switch ($recording_type) {
 		 case 'once':
-		   $this->record_once($start_time, $channel, $channelMinor, $program);
+echo "Doing Once\n";		
+		   if ($program['season_pass']) { 
+			  $this->cancel_season($program['series']); 
+		   } elseif (! $program['recording']) {
+		      $this->record_once($start_time, $channel, $channelMinor, $program);
+		   } else {
+			  // do nothing - already set to record.
+		   }
 		   break;
 		 case 'season':
-		   $this->record_season($program);
+echo "Doing season\n";		
+		   if ($program['recording']) { 
+			  $this->cancel_recording($start_time, $channel, $channelMinor, $program); 
+		   } elseif (! $program['season_pass']) {
+		      $this->record_season($program);
+		   } else {
+			  // Already set to record a seson pass - do nothing.
+		   }
 		   break;
 		 case 'no':
            if ($program['season_pass']) {
@@ -33,7 +47,7 @@ echo "Got |$recording_type|\n";
 	          $this->cancel_season($program['series']);
            } elseif ($program['recording']) {
 	echo "Canceling recording\n";
-	          $this->cancel_recording();
+	          $this->cancel_recording($start_time, $channel, $channelMinor, $program);
            }		   
 		 default:
 	   }
@@ -81,13 +95,32 @@ echo "Got |$recording_type|\n";
 	   $this->update_schedule($program['series']);
 	   return true;
      }
-     public function cancel_recording() {
+     public function cancel_recording($start_time, $channel, $channelMinor, array $program) {
 	   // call this to cancel a single recording
-	
+	   $filename = $this->determine_filename($program, $start_time);
+	   $this->cancel_schedule($filename);
+       //
+	   $sql = "select id from recording where start_time = '" . $start_time . "' and channel = ";
+	   $sql.= $channel . " and channelMinor = " . $channelMinor . " and series = '" . $program['series'];
+	   $sql.= "' and `filename` = '" . $filename . "'";
+echo " cancel with sql:  $sql\n";	
+	   $result = $this->dbobj->fetch_all($sql);
+	   $ids = array();
+	   foreach ($result as $row) {
+		 array_push($ids, $row['id']);
+	   }
+	   $sql = "delete from recording where id in (" . implode(",", $ids) . ")";
+echo " cancel db with sql: $sql\n";	
+	   $result = $this->dbobj->execute($sql);
+	   if ($result == false) {
+		  echo "Error - could not delete recordings from recording table!\n";
+		  return false;
+	   }
+	   return true;
      }
      public function cancel_season($series) {
 	   // call this to cancel a seasons pass for a series
-	   $sql    = "select * from recordings where series = '" . $series . "'";
+	   $sql    = "select * from recording where series = '" . $series . "'";
 	   $result = $this->dbobj->fetch_all($sql);
 	   $count  = 0;
 	   foreach ($result as $row) {
@@ -95,26 +128,37 @@ echo "Got |$recording_type|\n";
 	     $this->cancel_schedule( $row['filename'] );
 	     $count += 1;
 	   } 
-	   $sql    = "delete from recordings where series = '" . $series . "'";
+	   $sql    = "delete from recording where series = '" . $series . "'";
+echo " season cancel recordings and cron with sql: $sql\n";	
 	   $result = $this->dbobj->fetch_all($sql);
-	   if ($result != $count) {
+	   if ($result != $count or $result == false) {
  echo "Huh?  Wrong number of deleted cronjobs?! think $result -deleted--> $count\n";
 	   }
-	   return;
+	   $sql    = "delete from series_pass where series = '" . $series . "'";
+	   $result = $this->dbobj->fetch_all($sql);
+	   if ($result == false) {
+		  return false;
+	   }
+	   return true;
      }
      public function update_schedule($series = null) {
 	   // This function is called daily based on updated SD data
 	   // to update the schedule for season passes where new episodes are detected
 	   if (is_null($series)) {
 		 // Called by daily program, refresh everything
-		 $sql = "select * from pvr_schedule where season_pass = 1";
+		 $sql = "select * from pvr_schedule where season_pass = 1 and `time` > '" . $this->now() . "'";
 	   } else {
 		 // Called by record script, only refresh for a particular series
 		 $sql = "select * from pvr_schedule where season_pass = 1 and series = '" . $series . "'";
+		 $sql.= " and `time` > '" . $this->now() . "'";
 	   }
 	   $result = $this->dbobj->fetch_all($sql);
 	   foreach ($result as $row) {
-		 // Loop through the result rows
+		 // Loop through the result rows.  For each show add a recording for it if it doesn't exist in db
+		 if (! $this->is_recorded($row['program_id'], $row['device_channel'], $row['device_channelMinor'], $row['time'])) {
+		   $this->record_once($row['time'], $row['device_channel'], $row['device_channelMinor'], $row);	
+		 }
+		 // Should be all good now... for both cronjobs and DB recording entries 
 	   }
 	   // finished updating schedule
 	   return;
@@ -188,6 +232,9 @@ echo "\n";
      private function datetime_to_epoctime($datetime) {
 	   return date('F jS', strtotime($datetime));
      }	
+     private function now() {
+	   return date("Y-m-d H:i:s");
+     }
 	 // End of Class
    }
 

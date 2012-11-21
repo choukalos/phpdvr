@@ -56,13 +56,15 @@
   }
 ?>
 
+<?php echo "rec:" . $row['recording'] . " season:" . $row['season_pass'] . "\n"; ?>
+
 <br />
 <br />
 <!-- need to wrap in a form to do an ajax submit back to program.php to setup recording/etc... -->
 <form method="post" action="program.php">
-  <label class="radio"> <input type="radio" id='record' name='record' value='no'   <?php if(!($row['recording']) and !($row['season_pass'])) { echo "checked"; } ?> >Do Not Record </label>
+  <label class="radio"> <input type="radio" id='record' name='record' value='no'   <?php if(!$row['recording']  && !$row['season_pass']) { echo "checked"; } ?> >Do Not Record </label>
   <label class="radio"> <input type="radio" id='record' name='record' value='once' <?php if(($row['recording']) && !($row['season_pass'])) { echo "checked"; } ?> >Record Once</label>
-  <label class="radio"> <input type="radio" id='record' name='record' value='season' <?php if($row['season_pass']) { echo "checked"; } ?>'>Always Record</label>
+  <label class="radio"> <input type="radio" id='record' name='record' value='season' <?php if($row['season_pass']) { echo "checked"; } ?> >Always Record</label>
   <input type='hidden' name='id' id='id' value="<?php echo $program_id ?>">
   <input type='hidden' name='station_id' id='station_id' value ="<?php echo $station_id ?>">
   <input type='hidden' name='time' id='time' value="<?php echo $program_time ?>">
