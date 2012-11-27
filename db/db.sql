@@ -57,6 +57,7 @@ CREATE TABLE `schedules` (
   `part_number`	   integer(8) default 0,
   `part_total`     integer(8) default 0,
   `record`		   integer(1) default 0,
+--  primary key (program_id, station_id, time),
   KEY `program_id` (`program_id`),
   KEY `station_id` (`station_id`),
   KEY `time` (`time`),
@@ -182,10 +183,11 @@ CREATE VIEW pvr_stations as
     d.channel as `device_channel`,
     d.channelMinor as `device_channelMinor`,
     d.callSign as `device_callSign`,
-    d.callSignMinor as `device_callSignMinor`,
     d.fcc_channel as `device_fccChannelNumber`
   from
     channels d inner join all_stations c on (d.station_id = c.station_id)
+  where
+    d.station_id is not null
   group by
     c.station_id, 
     c.fccChannelNumber, 
@@ -199,8 +201,57 @@ CREATE VIEW pvr_stations as
     d.channel,
     d.channelMinor,
     d.callSign,
-    d.callSignMinor,
     d.fcc_channel;
+
+	-- View used in pvr_upcoming
+	create view pvr_upcoming_raw as
+	  select 
+	    r.program_id,
+	    r.station_id,
+	    r.series,
+	    s.title as series_title,
+	    r.start_time,
+	    r.duration,
+	    r.filename,
+	    r.channel,
+	    r.channelMinor,
+	    if(r.series is null,"Single","Series") as type
+	  from recording r left join series_pass s on (r.series = s.series)
+	  union
+	  select
+	    r.program_id,
+	    r.station_id,
+	    r.series,
+	    s.title as series_title,
+	    r.start_time,
+	    r.duration,
+	    r.filename,
+	    r.channel,
+	    r.channelMinor,
+	    if(r.series is null,"Series","Single") as type
+	  from series_pass s left join recording r on (s.series = r.series)
+	  where r.series is null;	
+
+	-- View to show all upcoming recordings
+	create view pvr_upcoming as
+	  select
+	    t.program_id,
+	    t.station_id,
+	    t.series,
+	    t.series_title,
+	    t.start_time,
+	    t.duration,
+	    t.filename,
+	    t.channel,
+	    t.channelMinor,
+	    t.type,
+	    p.title,
+	    p.subtitle,
+	    s.device_fccChannelNumber
+	  from 
+	    (pvr_upcoming_raw t left join programs p on (t.program_id = p.id)) left join pvr_stations s 
+	    on (t.station_id = s.station_id)
+	  order by t.series_title, t.start_time;
 
 -- This view is used to populate the tv guide, program_id is used to show detail on a program and ties into 
 -- the recording tables to identify if a show is tagged for season or one time recording
@@ -230,66 +281,21 @@ CREATE VIEW pvr_schedule as
     p.series,
     p.syndicatedEpisodeNumber,
     p.originalAirDate,
-    if(r.program_id is not null, "1","0") as recording,
-    r.deviceid as recording_device_id,
-    r.tuner as recording_tuner,
-    r.start_time as recording_start_time,
-    r.duration as recording_duration,
-    if(s.series is not null, "1", "0") as season_pass
+    if(u.program_id is not null, "1","0") as recording,
+    u.start_time as recording_start_time,
+    u.duration as recording_duration,
+    if(u.series is not null, "1", "0") as season_pass
   from 
-    ( ((pvr_stations c left join schedules a on (c.station_id = a.station_id)) left join programs p 
-       on (a.program_id = p.id)) left join recording r on (p.id = r.program_id))
-        left join series_pass s on (p.series = s.series);
+    ( ((pvr_stations c left join schedules a on (c.station_id = a.station_id))
+      left join programs p on (a.program_id = p.id)) 
+        left join pvr_upcoming u on 
+         (a.program_id = u.program_id and a.station_id = u.station_id and a.time = u.start_time)
+    )
 
--- View used in pvr_upcoming
-create view pvr_upcoming_raw as
-  select 
-    r.program_id,
-    r.station_id,
-    r.series,
-    s.title as series_title,
-    r.start_time,
-    r.duration,
-    r.filename,
-    r.channel,
-    r.channelMinor,
-    if(r.series is null,"Single","Series") as type
-  from recording r left join series_pass s on (r.series = s.series)
-  union
-  select
-    r.program_id,
-    r.station_id,
-    r.series,
-    s.title as series_title,
-    r.start_time,
-    r.duration,
-    r.filename,
-    r.channel,
-    r.channelMinor,
-    if(r.series is null,"Series","Single") as type
-  from series_pass s left join recording r on (s.series = r.series)
-  where r.series is null;	
 
--- View to show all upcoming recordings
-create view pvr_upcoming as
-  select
-    t.program_id,
-    t.station_id,
-    t.series,
-    t.series_title,
-    t.start_time,
-    t.duration,
-    t.filename,
-    t.channel,
-    t.channelMinor,
-    t.type,
-    p.title,
-    p.subtitle,
-    s.device_fccChannelNumber
-  from 
-    (pvr_upcoming_raw t left join programs p on (t.program_id = p.id)) left join pvr_stations s 
-    on (t.station_id = s.station_id)
-  order by t.series_title, t.start_time;
+
+
+
  
 
 
