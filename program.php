@@ -28,6 +28,17 @@
     $channelMinor= $row["device_channelMinor"];
 	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
 	$schedule_manager->record($record_opt, $program_time, $channel, $channelMinor, $row);
+    // Overwrite the row based upon recording options so display is correct.	
+    switch ($record_opt) {
+	  case "single":	$row["recording"]  = 1;
+	  				    $row["season_pass"]= 0;
+						break;
+	  case "season":    $row["recording"]   = 1;
+						$row["season_pass"] = 1;
+						break;
+	  default:			$row["recording"]   = null;
+						$row["season_pass"] = null;
+    }
   }
   // Now handle page output
 ?>

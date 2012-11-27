@@ -11,6 +11,7 @@
   // Fetch 14 days forward looking of guide data
 //  $sd_data = $guidedata->fetch(14);
   $guidedata->update($sd_data);
+  echo "Updated guide data - now updating season pass recording schedules\n";
   // Update season pass recording schedules
   $scheduler = new schedule_manager($DB, $RECORDING_DIR);
   $scheduler->update_schedule();

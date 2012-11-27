@@ -93,6 +93,7 @@ CREATE TABLE `programs` (
 CREATE TABLE `recording` (
   `id`           int(11) NOT NULL AUTO_INCREMENT,
   `program_id`   varchar(30) NOT NULL,
+  `station_id`   int(10) NOT NULL,
   `series`       char(40)    NOT NULL,
   `start_time`   datetime NOT NULL,
   `duration`     int(11)  NOT NULL,
@@ -103,7 +104,7 @@ CREATE TABLE `recording` (
   `channelMinor` int(2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `program_id` (`program_id`),
-  KEY `series` (`series`)
+  KEY `series` (`series`),
 ) ENGINE=MyISAM AUTO_INCREMENT=287 DEFAULT CHARSET=latin1;
 
 -- SYS:  series passes -> use this table to id series that we'll constantly be queuing up recordings for ...
@@ -115,14 +116,16 @@ CREATE TABLE `series_pass` (
 
 -- SYS:  recorded shows table -> use this table to id programs that have been recorded and can be viewed ...
 CREATE TABLE `recorded` (
-  `program_id`              varchar(30)  NOT NULL,
-  `title`                   varchar(40)  NOT NULL,
-  `series`                  char(40)     NOT NULL,
-  `syndicatedEpisodeNumber` char(40)     NOT NULL,
-  `savefilename`			varchar(100) NOT NULL,
-  PRIMARY KEY (`program_id`),
-  KEY `series` (`series`)
+	program_id	varchar(30) not null,
+	station_id  int(10) not null,
+	start_time  datetime not null,
+	title varchar(40) not null,
+    series char(40) not null,
+    syndicatedEpisodeNumber char(40) not null,
+    `filename` varchar(100) not null,
+    key `main` (`series`,`station_id`,`start_time`)
 ) ENGINE=MyISAM CHARSET=latin1;
+
 -- END of SQL to setup tables/etc...
 
 -- Create Views for easy data access
@@ -237,6 +240,58 @@ CREATE VIEW pvr_schedule as
     ( ((pvr_stations c left join schedules a on (c.station_id = a.station_id)) left join programs p 
        on (a.program_id = p.id)) left join recording r on (p.id = r.program_id))
         left join series_pass s on (p.series = s.series);
+
+-- View used in pvr_upcoming
+create view pvr_upcoming_raw as
+  select 
+    r.program_id,
+    r.station_id,
+    r.series,
+    s.title as series_title,
+    r.start_time,
+    r.duration,
+    r.filename,
+    r.channel,
+    r.channelMinor,
+    if(r.series is null,"Single","Series") as type
+  from recording r left join series_pass s on (r.series = s.series)
+  union
+  select
+    r.program_id,
+    r.station_id,
+    r.series,
+    s.title as series_title,
+    r.start_time,
+    r.duration,
+    r.filename,
+    r.channel,
+    r.channelMinor,
+    if(r.series is null,"Series","Single") as type
+  from series_pass s left join recording r on (s.series = r.series)
+  where r.series is null;	
+
+-- View to show all upcoming recordings
+create view pvr_upcoming as
+  select
+    t.program_id,
+    t.station_id,
+    t.series,
+    t.series_title,
+    t.start_time,
+    t.duration,
+    t.filename,
+    t.channel,
+    t.channelMinor,
+    t.type,
+    p.title,
+    p.subtitle,
+    s.device_fccChannelNumber
+  from 
+    (pvr_upcoming_raw t left join programs p on (t.program_id = p.id)) left join pvr_stations s 
+    on (t.station_id = s.station_id)
+  order by t.series_title, t.start_time;
+ 
+
 
 /* SQL to update channels with station_id post channel scan - assume a split on fcc_channel maps to lineups channel/channelMinor columns)
 update channels inner join all_stations 

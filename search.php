@@ -37,7 +37,8 @@
 <?php 	  
 	foreach ($result as $row) {
 	  echo "<tr><a href='program.php?id=" . $row["program_id"] . "'>";
-	  echo "<tr><td><a href='program.php?id=" . $row["program_id"] . "'>" . $row["title"] . "</td><td>";
+	  echo "<tr><td><a href='program.php?id=" . $row["program_id"] . "&station_id=" . $row["station_id"];
+	  echo "&time=" . $row["time"] . "'>" . $row["title"] . "</td><td>";
 	  echo $row["subtitle"] . "</td><td>" . $row[device_fccChannelNumber] . "</td><td>";
 	  echo $row["tvRating"] . "</td><td>";
 	  // add in the flags - dolby, new, stereo, tvRating //

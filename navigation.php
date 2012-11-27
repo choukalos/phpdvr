@@ -11,6 +11,7 @@
 		    <ul class="nav nav-pills">
 		      <li><a href="./">Guide</a></li>
 		      <li><a href="./search.php">Search</a></li>
+		      <li><a href="./upcoming.php">Upcoming</a></li>
 		      <li><a href="./recordings.php">Recordings</a></li>
 		      <li><a href="./setup.php">Setup</a></li>
 		      <li><a href="./about.php">About</a></li>

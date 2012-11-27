@@ -36,7 +36,7 @@ echo "Doing season\n";
 		   if ($program['recording']) { 
 			  $this->cancel_recording($start_time, $channel, $channelMinor, $program); 
 		   } elseif (! $program['season_pass']) {
-		      $this->record_season($program);
+		      $this->record_season($program['series'], $program['title']);
 		   } else {
 			  // Already set to record a seson pass - do nothing.
 		   }
@@ -56,7 +56,7 @@ echo "Doing season\n";
      }
      public function record_once ($start_time, $channel, $channelMinor, array $program) {
 	   // see if program already queued up for recording
-	   if ( !$this->is_recorded($program_id, $channel, $channelMinor, $start_time) ) {
+	   if ( !$this->is_recorded($program["program_id"], $channel, $channelMinor, $start_time) ) {
 	     // then queue up program for recording
          $filename               = $this->determine_filename($program, $start_time);	
          list($deviceid, $tuner) = $this->get_free_tuner($start_time, $program['duration'], $channel, $channelMinor);       
@@ -66,6 +66,7 @@ echo "Doing season\n";
 	     $crontabentry .= "$channel $channelMinor " . $program['duration'] . " $filename > /dev/null";
 	     // Add the DB entry
 	     $sql  = "insert into recording set program_id = '" . $program['program_id'] ."'";
+	     $sql .= ", station_id = " . $program['station_id'];
 	     $sql .= ", series = '" . $program['series'] . "'" ;
 	     $sql .= ", start_time = '" . $start_time . "', duration = " . $program['duration'];
 	     $sql .= ", filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
@@ -87,12 +88,12 @@ echo "Doing season\n";
 	   // remove from DB
 	
      }
-     public function record_season(array $program) {
+     public function record_season($series, $title) {
 	   // call this to schedule a seasons pass for a series
-	   $sql  = "insert ignore into series_pass set series = '" . $program['series'] . "', title = '";
-	   $sql .= $program['title'] . "'";
+	   $sql  = "insert ignore into series_pass set series = '" . $series . "', title = '";
+	   $sql .= $title . "'";
 	   $rc   = $this->dbobj->execute($sql);
-	   $this->update_schedule($program['series']);
+	   $this->update_schedule($series);
 	   return true;
      }
      public function cancel_recording($start_time, $channel, $channelMinor, array $program) {
@@ -156,6 +157,7 @@ echo " season cancel recordings and cron with sql: $sql\n";
 	   foreach ($result as $row) {
 		 // Loop through the result rows.  For each show add a recording for it if it doesn't exist in db
 		 if (! $this->is_recorded($row['program_id'], $row['device_channel'], $row['device_channelMinor'], $row['time'])) {
+echo "... Updating Schedule - record for " . $row['program_id'] . " at " . $row['time'] . "\n";			
 		   $this->record_once($row['time'], $row['device_channel'], $row['device_channelMinor'], $row);	
 		 }
 		 // Should be all good now... for both cronjobs and DB recording entries 
@@ -165,12 +167,12 @@ echo " season cancel recordings and cron with sql: $sql\n";
      }
     // This function is called to see if a recording is already marked in the recording table
     // to prevent duplicates / etc
-    private function is_recorded($program_id, $channel, $channelMinor, $start_time) {
+    public function is_recorded($program_id, $channel, $channelMinor, $start_time) {
 	  $sql = "select * from recording where program_id = '" . $program_id . "' and ";
 	  $sql.= "start_time = '" . $start_time . "' and channel = $channel and channelMinor = ";
 	  $sql.= "$channelMinor";
 	  $result = $this->dbobj->fetch_all($sql);
-	  if (is_null($result)) {
+	  if (empty($result)) {
 		return false;
 	  } 
 	  return true;

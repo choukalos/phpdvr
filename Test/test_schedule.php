@@ -24,10 +24,13 @@
   $schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
   $schedule_manager->record_once($program_time, $channel, $channelMinor, $row);
 
+  $rc = $schedule_manager->is_recorded($program_id, $channel, $channelMinor, $program_time);
+  echo "IS recording reports $rc !\n";
+
   // Check to see if recording has been set
   $sql = "select * from recording where program_id = '" . $program_id . "' and start_time = '" . $program_time . "'";
   $result = $DB->fetch_all($sql);
-  echo "Found in recordings:\n";
+  echo "Manual check - Found in recordings:\n";
   var_dump($result);
 
 ?>

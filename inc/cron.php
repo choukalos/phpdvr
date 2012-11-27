@@ -17,8 +17,9 @@ class crontab_manager {
 	private $handle;
 	
 	function __construct() { 
-	  $path_length     = strrpos(__FILE__, "/");
-	  $this->path      = substr(__FILE__, 0, $path_length) . '/';
+//	  $path_length     = strrpos(__FILE__, "/");
+//	  $this->path      = substr(__FILE__, 0, $path_length) . '/';
+	  $this->path      = dirname(dirname(__FILE__)) . '/';
 	  $this->handle    = 'crontab.txt';
 	  $this->cron_file = "{$this->path}{$this->handle}";
 	}

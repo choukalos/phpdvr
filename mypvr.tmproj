@@ -84,14 +84,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>31</integer>
+				<integer>17</integer>
 				<key>line</key>
-				<integer>92</integer>
+				<integer>33</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>71</integer>
+			<integer>8</integer>
 		</dict>
 		<key>inc/tvgrid.php</key>
 		<dict>
@@ -112,28 +112,44 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>27</integer>
+				<integer>34</integer>
 				<key>line</key>
-				<integer>3</integer>
+				<integer>13</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>11</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>34</integer>
+				<key>line</key>
+				<integer>13</integer>
+			</dict>
 		</dict>
 		<key>program.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>22</integer>
+				<integer>93</integer>
 				<key>line</key>
-				<integer>24</integer>
+				<integer>64</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>15</integer>
 		</dict>
 		<key>setup.php</key>
 		<dict>
@@ -179,6 +195,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{613, 163}, {984, 767}}</string>
+	<string>{{631, 97}, {984, 767}}</string>
 </dict>
 </plist>
