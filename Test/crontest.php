@@ -1,6 +1,6 @@
 <?php
 
-include "./inc/cron.php";
+require_once(dirname(__FILE__) . '/../config.php');
 $crontab = new crontab_manager();
 $new_cronjobs = array(
     '0 0 1 * * myjob.sh',
