@@ -42,30 +42,26 @@ create table `channels` (
   KEY `channel_minor` (`channel`, `channelMinor`)
 ) ENGINE=MyISM DEFAULT CHARSET=latin1;
 
--- SD data:  Schedules
+-- SD Data:  Schedules
 CREATE TABLE `schedules` (
-  `program_id`	   varchar(30) not null,
-  `station_id`     integer(10) not null,
-  `time`           datetime    not null,
-  `duration`       integer(10) not null,
-  `tvRating`	   varchar(8)  default null,
-  `stereo`         integer(1)  default 0,
-  `hdtv`	  	   integer(1)  default 0,
-  `closeCaptioned` integer(1) default 0,
-  `dolby`		   varchar(8) default null,
-  `new`			   integer(1) default 0,  
-  `part_number`	   integer(8) default 0,
-  `part_total`     integer(8) default 0,
-  `record`		   integer(1) default 0,
---  primary key (program_id, station_id, time),
-  KEY `program_id` (`program_id`),
-  KEY `station_id` (`station_id`),
-  KEY `time` (`time`),
-  KEY `record` (`record`)
+	`program_id`    varchar(30) not null,
+	`station_id`    integer(10) not null,
+	`time`          datetime not null,
+	`duration`      integer(10) not null,
+	`tvRating`      varchar(8) default null,
+	`stereo`        integer(1) default 0,
+	`hdtv`          integer(1) default 0,
+	`closeCaptioned` integer(1) default 0,
+	`dolby`         varchar(8) default null,
+	`new`           integer(1) default 0,
+	`part_number`   integer(8) default 0,
+	`part_total`    integer(8) default 0,
+	`record`        integer(1) default 0,
+	PRIMARY KEY (`program_id`, `station_id`, `time`),
+	KEY `record` (`record`)
 ) ENGINE=MyISM DEFAULT CHARSET=latin1;
 
 -- SD Data:  Programs -> links to program in schedules to tell you what it is youre watching
-
 CREATE TABLE `programs` (
   `id`                       varchar(30) not null,
   `title`                    varchar(80) not null,

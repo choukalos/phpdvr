@@ -16,10 +16,12 @@ class crontab_manager {
 	private $cronfile;
 	private $handle;
 	
-	function __construct() { 
-//	  $path_length     = strrpos(__FILE__, "/");
-//	  $this->path      = substr(__FILE__, 0, $path_length) . '/';
-	  $this->path      = dirname(dirname(__FILE__)) . '/';
+	function __construct($tempdir = null) { 
+	  if (is_null($tempdir)) {
+  	    $this->path      = dirname(dirname(__FILE__)) . '/';	  	
+	  } else {
+		$this->path    = $tempdir;
+	  }
 	  $this->handle    = 'crontab.txt';
 	  $this->cron_file = "{$this->path}{$this->handle}";
 	}
