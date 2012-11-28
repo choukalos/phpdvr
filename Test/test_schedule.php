@@ -5,9 +5,9 @@
   // Note just uses what's in the DB to schedule a recording
   $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
   //
-  $program_id   = "SH004254520000";
-  $station_id   = 35506;
-  $program_time = "2012-11-20 09:00:00";
+  $program_id   = "EP000809390008";
+  $station_id   = 25147;
+  $program_time = "2012-11-28 09:00:00";
 
   // Query and set schedule 
   $sql  = "select * from pvr_programs where program_id = '" . $program_id . "' and station_id = " . $station_id;
