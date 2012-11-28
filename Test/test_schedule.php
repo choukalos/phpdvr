@@ -21,7 +21,7 @@
 //  var_dump($row);
 //  echo "\n";
 
-  $schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
+  $schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR);
   $schedule_manager->record_once($program_time, $channel, $channelMinor, $row);
 
   $rc = $schedule_manager->is_recorded($program_id, $channel, $channelMinor, $program_time);

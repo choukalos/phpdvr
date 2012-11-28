@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>db/db.sql</string>
+	<string>index.php</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -18,7 +18,7 @@
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
-	<integer>173</integer>
+	<integer>291</integer>
 	<key>metaData</key>
 	<dict>
 		<key>README.md</key>
@@ -35,47 +35,33 @@
 			<key>firstVisibleLine</key>
 			<integer>7</integer>
 		</dict>
-		<key>db/db.sql</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>18</integer>
-				<key>line</key>
-				<integer>54</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>42</integer>
-		</dict>
 		<key>inc/cron.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>55</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>21</integer>
+				<integer>19</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>8</integer>
+			<integer>9</integer>
 		</dict>
 		<key>inc/schedule_manager.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>44</integer>
+				<integer>64</integer>
 				<key>line</key>
-				<integer>138</integer>
+				<integer>12</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>86</integer>
+			<integer>0</integer>
 		</dict>
 		<key>index.php</key>
 		<dict>
@@ -104,6 +90,36 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>19</integer>
+		</dict>
+		<key>search.php</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>6</integer>
+				<key>line</key>
+				<integer>54</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>26</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>26</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>6</integer>
+				<key>line</key>
+				<integer>54</integer>
+			</dict>
 		</dict>
 		<key>setup.php</key>
 		<dict>
@@ -140,7 +156,7 @@
 	<array>
 		<string>setup.php</string>
 		<string>index.php</string>
-		<string>db/db.sql</string>
+		<string>search.php</string>
 		<string>program.php</string>
 		<string>inc/schedule_manager.php</string>
 		<string>inc/cron.php</string>
@@ -148,6 +164,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{620, 52}, {806, 604}}</string>
+	<string>{{451, 47}, {806, 604}}</string>
 </dict>
 </plist>

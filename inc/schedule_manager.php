@@ -9,8 +9,8 @@
 	 private $crontab;
 	 private $dbobj;
 	
-     function __construct(database $dbobj, $recording_directory) {
-	   $this->crontab          = new crontab_manager();
+     function __construct(database $dbobj, $recording_directory, $log_directory) {
+	   $this->crontab          = new crontab_manager($log_directory);
 	   $this->recording_script = dirname(dirname(__FILE__)) . "/mypvr_record.php";
 	   $this->dbobj            = $dbobj;
 	   $this->recording_dir    = $recording_directory;
