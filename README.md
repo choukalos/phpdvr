@@ -14,23 +14,20 @@ Install / Setup
 ----------------
 
 Ideally this would be handled as a package for the various NAS systems.  You can manually install by:  
+*  Make sure your machine has hdhomerun_config cmdline tool installed
 *  copy files over to web directory
 *  sudo chown -R www-data logs recordings
 *  sudo chgrp -R www-data logs recordings
 *  open up config.php and update the settings as appropriate for your system
 *  Add an .htaccess file to restrict access to this application
-*  Open up your web browser to the appropriate address
-*  Click on 'Setup' in the main menu bar
+*  from the main directory type:  php setup.php   [ doesn't work from weblink ]
 
 To Do
 -----
 
 (Under Construction)  
 *  Fix setup.php - has issues
-*  consolidate db code into one file
-*  Add single show recording
-*  Add seasons pass recording
-*  Add Device/Tuner selection logic
+*  Add Device/Tuner selection logic (defaults to 1st device, 1st tunner)
 *  Add HTML5 video streaming from recordings page (maybe spiff it up some?)
 *  Add a dashboard that shows available HD space, scheduled recordings, new shows
 *  Add a hook (for ffmpeg support) that enables re-encoding
@@ -39,7 +36,7 @@ To Do
 
 Known Issues
 ------------
-1.  None at this point  
+1.  Issues with cronjobs not being saved  
 
 Changes/updates
 ---------------
