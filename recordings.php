@@ -26,7 +26,7 @@
   <thead>
 	<th>Play</th>
     <th>Title</th>
-    <th>Episode</th>
+    <th>SubTitle</th>
   </thead>
 
 <?php 	  
@@ -34,7 +34,7 @@
 	  echo "<tr><td>STREAM</td>";
 	  echo "<td><a href='program.php?id=" . $row["program_id"] . "&station_id=" . $row["station_id"];
 	  echo "&time=" . $row["time"] . "'>" . $row["title"] . "</td><td>";
-	  echo $row["syndicatedEpisodeNumber"] . "</td><td></tr>";
+	  echo $row["subtitle"] . "</td><td></tr>";
 	}
 ?>
 </table>

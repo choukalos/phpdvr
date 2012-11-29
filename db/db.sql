@@ -10,7 +10,7 @@ create table `stations` (
   `affiliate`        varchar(40) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `id` (`id`)	
-) ENGINE=MyISM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- Lookup table between stations (SD) and channels (hdhomerun scanned)
 create table `lineups` (
@@ -20,7 +20,7 @@ create table `lineups` (
   PRIMARY KEY (`station_id`),
   KEY `station_id` (`station_id`),
   KEY `channel_minor` (`channel`, `channelMinor`)
-) ENGINE=MyISM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- Scanned HDhomerun channels that I can receive
 create table `channels` (
@@ -40,7 +40,7 @@ create table `channels` (
   `station_id`    int(10) null default null,
   KEY `device_channel_minor` (`device`, `channel`, `channelMinor`),
   KEY `channel_minor` (`channel`, `channelMinor`)
-) ENGINE=MyISM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- SD Data:  Schedules
 CREATE TABLE `schedules` (
@@ -59,13 +59,13 @@ CREATE TABLE `schedules` (
 	`record`        integer(1) default 0,
 	PRIMARY KEY (`program_id`, `station_id`, `time`),
 	KEY `record` (`record`)
-) ENGINE=MyISM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- SD Data:  Programs -> links to program in schedules to tell you what it is youre watching
 CREATE TABLE `programs` (
   `id`                       varchar(30) not null,
   `title`                    varchar(80) not null,
-  `subtitle`                 varchar (80) not null,
+  `subtitle`                 varchar(80) not null,
   `description`              text not null,
   `showType`	             char(40) not null,
   `colorCode`				 varchar(8) not null,
@@ -74,7 +74,7 @@ CREATE TABLE `programs` (
   `originalAirDate`          date default null,
   PRIMARY KEY (`id`),
   KEY `title` (`title`)	
-) ENGINE=MyISM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- SD:  Genre object -> has a array of genres : genre and relevance for each program, how to model?  Important?
 -- CREATE TABLE `genre` (
@@ -93,6 +93,8 @@ CREATE TABLE `recording` (
   `station_id`   int(10) NOT NULL,
   `series`       char(40)    NOT NULL,
   `start_time`   datetime NOT NULL,
+  `title`        varchar(80) NOT NULL,
+  `subtitle`     varchar(80) NOT NULL,
   `duration`     int(11)  NOT NULL,
   `filename`     varchar(100) NOT NULL,
   `deviceid`     varchar(8) default NULL,
@@ -101,7 +103,7 @@ CREATE TABLE `recording` (
   `channelMinor` int(2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `program_id` (`program_id`),
-  KEY `series` (`series`),
+  KEY `series` (`series`)
 ) ENGINE=MyISAM AUTO_INCREMENT=287 DEFAULT CHARSET=latin1;
 
 -- SYS:  series passes -> use this table to id series that we'll constantly be queuing up recordings for ...
@@ -116,11 +118,12 @@ CREATE TABLE `recorded` (
 	program_id	varchar(30) not null,
 	station_id  int(10) not null,
 	start_time  datetime not null,
+	series char(40) not null,
 	title varchar(40) not null,
-    series char(40) not null,
-    syndicatedEpisodeNumber char(40) not null,
+	subtitle varchar(40) not null,
     `filename` varchar(100) not null,
-    key `main` (`series`,`station_id`,`start_time`)
+    key `main` (`program_id`,`station_id`,`start_time`),
+    key `filename` (`filename`)
 ) ENGINE=MyISAM CHARSET=latin1;
 
 -- END of SQL to setup tables/etc...
@@ -211,20 +214,20 @@ CREATE VIEW pvr_stations as
 	    r.filename,
 	    r.channel,
 	    r.channelMinor,
-	    if(r.series is null,"Single","Series") as type
+	    if(s.series is null,"Single","Series") as type
 	  from recording r left join series_pass s on (r.series = s.series)
 	  union
 	  select
 	    r.program_id,
 	    r.station_id,
-	    r.series,
+	    s.series,
 	    s.title as series_title,
 	    r.start_time,
 	    r.duration,
 	    r.filename,
 	    r.channel,
 	    r.channelMinor,
-	    if(r.series is null,"Series","Single") as type
+	    if(s.series is not null,"Series","Single") as type
 	  from series_pass s left join recording r on (s.series = r.series)
 	  where r.series is null;	
 
@@ -277,22 +280,16 @@ CREATE VIEW pvr_schedule as
     p.series,
     p.syndicatedEpisodeNumber,
     p.originalAirDate,
-    if(u.program_id is not null, "1","0") as recording,
-    u.start_time as recording_start_time,
-    u.duration as recording_duration,
-    if(u.series is not null, "1", "0") as season_pass
+    if(r.program_id is not null, "1","0") as recording,
+    r.start_time as recording_start_time,
+    r.duration as recording_duration,
+    if(s.series is not null, "1", "0") as season_pass
   from 
-    ( ((pvr_stations c left join schedules a on (c.station_id = a.station_id))
-      left join programs p on (a.program_id = p.id)) 
-        left join pvr_upcoming u on 
-         (a.program_id = u.program_id and a.station_id = u.station_id and a.time = u.start_time)
-    )
-
-
-
-
-
- 
+    ( (((pvr_stations c left join schedules a on (c.station_id = a.station_id))
+       left join programs p on (a.program_id = p.id)) 
+        left join series_pass s on (p.series = s.series))
+         left join recording r on (a.program_id = r.program_id and a.station_id = r.station_id and a.time = r.start_time)
+    );
 
 
 /* SQL to update channels with station_id post channel scan - assume a split on fcc_channel maps to lineups channel/channelMinor columns)

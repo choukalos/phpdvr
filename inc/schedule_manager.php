@@ -9,8 +9,8 @@
 	 private $crontab;
 	 private $dbobj;
 	
-     function __construct(database $dbobj, $recording_directory, $log_directory) {
-	   $this->crontab          = new crontab_manager($log_directory);
+     function __construct(database $dbobj, $recording_directory, $log_directory, $cron_path = null) {
+	   $this->crontab          = new crontab_manager($log_directory, $cron_path);
 	   $this->recording_script = dirname(dirname(__FILE__)) . "/mypvr_record.php";
 	   $this->dbobj            = $dbobj;
 	   $this->recording_dir    = $recording_directory;
@@ -18,11 +18,8 @@
      }
      public function record ($recording_type, $start_time, $channel, $channelMinor, array $program) {
 	
-echo "Got |$recording_type|";
-	
 	   switch ($recording_type) {
 		 case 'once':
-echo "Doing Once\n";		
 		   if ($program['season_pass']) { 
 			  $this->cancel_season($program['series']); 
 		   } elseif (! $program['recording']) {
@@ -32,7 +29,6 @@ echo "Doing Once\n";
 		   }
 		   break;
 		 case 'season':
-echo "Doing season\n";		
 		   if ($program['recording']) { 
 			  $this->cancel_recording($start_time, $channel, $channelMinor, $program); 
 		   } elseif (! $program['season_pass']) {
@@ -43,10 +39,8 @@ echo "Doing season\n";
 		   break;
 		 case 'no':
            if ($program['season_pass']) {
-	echo "Canceling Season\n";
 	          $this->cancel_season($program['series']);
            } elseif ($program['recording']) {
-	echo "Canceling recording\n";
 	          $this->cancel_recording($start_time, $channel, $channelMinor, $program);
            }		   
 		 default:
@@ -64,12 +58,14 @@ echo "Doing season\n";
 	     $crontabtime   = $this->get_crontab_time($start_time);
 	     $crontabentry  = $crontabtime . " /usr/bin/php " . $this->recording_script . " $deviceid $tuner ";
 	     $crontabentry .= "$channel $channelMinor " . $program['duration'] . " $filename > /dev/null";
+	     $this->crontab->append_cronjob($crontabentry);
 	     // Add the DB entry
 	     $sql  = "insert into recording set program_id = '" . $program['program_id'] ."'";
 	     $sql .= ", station_id = " . $program['station_id'];
 	     $sql .= ", series = '" . $program['series'] . "'" ;
 	     $sql .= ", start_time = '" . $start_time . "', duration = " . $program['duration'];
-	     $sql .= ", filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
+	     $sql .= ", title = '" . $program['title'] . "', subtitle = '" . $program['subtitle'];
+	     $sql .= "', filename = '" . $filename . "', deviceid = '" . $deviceid . "'";
 	     $sql .= ", tuner = $tuner, channel = $channel, channelMinor = $channelMinor ";
 	     $rc   = $this->dbobj->execute($sql);
 	     if ($rc == false) {
@@ -104,14 +100,12 @@ echo "Doing season\n";
 	   $sql = "select id from recording where start_time = '" . $start_time . "' and channel = ";
 	   $sql.= $channel . " and channelMinor = " . $channelMinor . " and series = '" . $program['series'];
 	   $sql.= "' and `filename` = '" . $filename . "'";
-echo " cancel with sql:  $sql\n";	
 	   $result = $this->dbobj->fetch_all($sql);
 	   $ids = array();
 	   foreach ($result as $row) {
 		 array_push($ids, $row['id']);
 	   }
 	   $sql = "delete from recording where id in (" . implode(",", $ids) . ")";
-echo " cancel db with sql: $sql\n";	
 	   $result = $this->dbobj->execute($sql);
 	   if ($result == false) {
 		  echo "Error - could not delete recordings from recording table!\n";
@@ -130,7 +124,6 @@ echo " cancel db with sql: $sql\n";
 	     $count += 1;
 	   } 
 	   $sql    = "delete from recording where series = '" . $series . "'";
-echo " season cancel recordings and cron with sql: $sql\n";	
 	   $result = $this->dbobj->fetch_all($sql);
 	   if ($result != $count or $result == false) {
  echo "Huh?  Wrong number of deleted cronjobs?! think $result -deleted--> $count\n";
@@ -156,8 +149,7 @@ echo " season cancel recordings and cron with sql: $sql\n";
 	   $result = $this->dbobj->fetch_all($sql);
 	   foreach ($result as $row) {
 		 // Loop through the result rows.  For each show add a recording for it if it doesn't exist in db
-		 if (! $this->is_recorded($row['program_id'], $row['device_channel'], $row['device_channelMinor'], $row['time'])) {
-echo "... Updating Schedule - record for " . $row['program_id'] . " at " . $row['time'] . "\n";			
+		 if (! $this->is_recorded($row['program_id'], $row['device_channel'], $row['device_channelMinor'], $row['time'], true)) {
 		   $this->record_once($row['time'], $row['device_channel'], $row['device_channelMinor'], $row);	
 		 }
 		 // Should be all good now... for both cronjobs and DB recording entries 
@@ -167,10 +159,14 @@ echo "... Updating Schedule - record for " . $row['program_id'] . " at " . $row[
      }
     // This function is called to see if a recording is already marked in the recording table
     // to prevent duplicates / etc
-    public function is_recorded($program_id, $channel, $channelMinor, $start_time) {
-	  $sql = "select * from recording where program_id = '" . $program_id . "' and ";
-	  $sql.= "start_time = '" . $start_time . "' and channel = $channel and channelMinor = ";
-	  $sql.= "$channelMinor";
+    public function is_recorded($program_id, $channel, $channelMinor, $start_time, $series_flag=false) {
+      if ($series_flag) {
+	    $sql = "select * from recording where program_id = '" . $program_id . "'";
+      } else {
+	    $sql = "select * from recording where program_id = '" . $program_id . "' and ";
+	    $sql.= "start_time = '" . $start_time . "' and channel = $channel and channelMinor = ";
+	    $sql.= "$channelMinor";
+	  }
 	  $result = $this->dbobj->fetch_all($sql);
 	  if (empty($result)) {
 		return false;
@@ -218,8 +214,6 @@ echo "... Updating Schedule - record for " . $row['program_id'] . " at " . $row[
      private function get_crontab_time($mysql_format) {
 	   // This function takes a mysql format datetime and converts to a cronjob row
 	   $date        = DateTime::createFromFormat("Y-m-d H:i:s",$mysql_format);
-print_r($date);
-echo "\n";
 	   $min         = $date->format("i");  // minutes with leading zeros (hope that's okay)
 	   $hour        = $date->format("G");  // 24 hour format without leading zeros
 	   $dayofmonth  = $date->format("j");  // 1 to 31, no leading zeros

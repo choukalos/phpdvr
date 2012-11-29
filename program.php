@@ -15,9 +15,6 @@
     $record_opt  = $_POST['record'];
   }
 
-//echo "<p>Caught : $program_id on $station_id at $program_time with opt $record_opt</p>\n";
-//var_dump($_POST);
-
   $sql  = "select * from pvr_programs where program_id = '" . $program_id . "' and station_id = " . $station_id;
   $sql .= " and `time` = '" . $program_time . "'";
   $result = $DB->fetch_all($sql);
@@ -26,11 +23,11 @@
     // POST so handle recording scheduler
     $channel     = $row["device_channel"];
     $channelMinor= $row["device_channelMinor"];
-	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR);
+	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR);
 	$schedule_manager->record($record_opt, $program_time, $channel, $channelMinor, $row);
     // Overwrite the row based upon recording options so display is correct.	
     switch ($record_opt) {
-	  case "single":	$row["recording"]  = 1;
+	  case "once":  	$row["recording"]  = 1;
 	  				    $row["season_pass"]= 0;
 						break;
 	  case "season":    $row["recording"]   = 1;
@@ -48,6 +45,8 @@
 <li>ID: <?php echo $row['program_id']; ?></li>
 <li>Title: <?php echo $row['title']; ?></li>
 <li>Subtitle:  <?php echo $row['subtitle']; ?></li>
+<li>Channel:  <?php echo $row['device_fccChannelNumber']; ?></li>
+<li>Time: <?php echo $row['time']; ?></li>
 <li>Description: <?php echo $row['description']; ?></li>
 <li>Original Air Date: <?php echo $row['orignalAirDate']; ?></li>
 <?php if ($row['series'] != "") {

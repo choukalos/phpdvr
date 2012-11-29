@@ -14,6 +14,7 @@ $SD_PASS = "choukalos1";
   // expected program paths
 $FFMPEG_PATH      = "/usr/bin/ffmpeg";
 $HDHOMERUN_PATH   = "/usr/local/bin/hdhomerun_config";
+$CRON_PATH        = "/usr/sbin/cron";
 // ------------------------------------------------
 
 // Global Variables

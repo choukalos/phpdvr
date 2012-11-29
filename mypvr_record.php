@@ -34,8 +34,20 @@
   $current_time = time();
   echo " ... Setting up tuner " . $HDHOMERUN_PATH . " id: " . $device_id . "\n";
   $hdhomerun = new hardware($DB, $HDHOMERUN_PATH, $LOG_DIR, $device_id);
+  echo " ... Mark file as recorded in DB\n";
+  $sql = "select * from recording where filename = '" . $savename . "' and channel = " . $channel;
+  $sql.= " and channelMinor = " . $prog;
+  $result = $DB->fetch_all($sql);
+  $row    = $result[0];
+  $sql = "insert into recorded (program_id, station_id, start_time, title, series, ";
+  $sql.= "subtitle, filename) values ('" . $row['program_id'] . "',";
+  $sql.= $row['station_id'] . ",'" . $row['series'] . "','" . $row['start_time'] . "','";
+  $sql.= $row['subtitle'] . "'";
+  $result = $DB->execute($sql);
   echo " ... Starting Recording \n";
   $hdhomerun->do_recording($tuner, $channel, $prog, $savename, $minduration);
+  $sql = "delete from recording where id = " . $row['id'];
+  $result = $DB->execute($sql);
   echo " ... Finished Recording \n";
 
 ?>

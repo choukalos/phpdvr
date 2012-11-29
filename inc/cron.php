@@ -15,15 +15,23 @@
 class crontab_manager {
 	private $cronfile;
 	private $handle;
+	private $cronexec;
 	
-	function __construct($tempdir = null) { 
+	function __construct($tempdir = null, $cronpath = null) { 
 	  if (is_null($tempdir)) {
   	    $this->path      = dirname(dirname(__FILE__)) . '/';	  	
 	  } else {
 		$this->path    = $tempdir;
 	  }
+	  if (is_null($cronpath)) {
+		$this->cronexec  = "crontab";
+	  } else {
+	    $this->cronexec  = $cronpath;	
+	  }
 	  $this->handle    = 'crontab.txt';
-	  $this->cron_file = "{$this->path}{$this->handle}";
+	  $this->cronfile = "{$this->path}{$this->handle}";
+//echo "CrontabMgr:  using file {$this->cronfile} with exec {$this->cronexec}\n";	
+	  return $this;
 	}
 	public function append_cronjob($cron_jobs=NULL) {
 		if (is_null($cron_jobs)) $this->error_message("Nothing to append!  Please specify a cron job or an array of cron jobs.");  
@@ -64,7 +72,7 @@ class crontab_manager {
         return $this;
 	}
 	public function remove_crontab() {
-		$this->exec("crontab -r");
+		$this->exec("{$this->cronexec} -r");
 		$this->remove_file();  
 		return $this;
 	}	
@@ -86,17 +94,18 @@ class crontab_manager {
 	}
 	private function write_to_file() {
 	  if ($this->crontab_file_exists()) {
-		$cmd = "crontab {$this->cron_file}";
+		$cmd = "{$this->cronexec} {$this->cron_file}";
 	  }	else {
-	    die ("Can not write to file, no crontab.txt to use!");	
+//	    die ("Can not write to file, no crontab.txt to use!");
+	    echo "Can not write to file, no crontab.txt to use!\n";	
 	  }
 	  return $this->exec($cmd);
 	}
 	private function read_crontab() {
-		$rc = $this->exec("crontab -l > $this->cron_file");
+		$rc = $this->exec("{$this->cronexec} -l > {$this->cron_file}");
 		if (preg_match("/no crontab/i",$rc)) {
 			$this->initialize_crontab();
-			$this->exec("crontab -l > $this->cron_file");
+			$this->exec("{$this->cronexec} -l > {$this->cron_file}");
 		}
 		$cron_array = file($this->cron_file, FILE_IGNORE_NEW_LINES);
 		return $cron_array;
@@ -105,10 +114,11 @@ class crontab_manager {
 		return file_exists($this->cron_file);  
 	}
 	private function error_message($error) {
-		die("ERROR: {$error} ");
+//		die("ERROR: {$error} ");
+		echo "ERROR: {$error} \n";
 	}
 	private function initialize_crontab() {
-		$this->exec("echo ' ' > $this->cron_file; crontab $this->cron_file");
+		$this->exec("echo ' ' > {$this->cron_file}; {$this->cronexec} {$this->cron_file}");
 		return true;
 	}
 	private function exec($cmd) {
