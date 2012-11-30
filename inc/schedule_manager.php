@@ -208,9 +208,7 @@
 	   }
 	   // end of naming logic, cleanse name to ensure file has no special characters or spaces
        // default is to add . instead of white space for file names and drop all ' and " chars
-       $name = ereg_replace('\s+','.', $name);
-       $name = ereg_replace('\"', '.', $name);
-       $name = ereg_replace('\'', '.', $name);
+       $name = preg_replace('([\s\,\"\'\:\-]+)','.', $name);
 	   // return name
 	   return $name;   
      }
