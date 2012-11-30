@@ -15,7 +15,7 @@
     $record_opt  = $_POST['record'];
   }
 
-  $sql  = "select * from pvr_programs where program_id = '" . $program_id . "' and station_id = " . $station_id;
+  $sql  = "select * from pvr_schedule where program_id = '" . $program_id . "' and station_id = " . $station_id;
   $sql .= " and `time` = '" . $program_time . "'";
   $result = $DB->fetch_all($sql);
   $row    = $result[0];
@@ -23,7 +23,7 @@
     // POST so handle recording scheduler
     $channel     = $row["device_channel"];
     $channelMinor= $row["device_channelMinor"];
-	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR);
+	$schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR, $CRON_PATH);
 	$schedule_manager->record($record_opt, $program_time, $channel, $channelMinor, $row);
     // Overwrite the row based upon recording options so display is correct.	
     switch ($record_opt) {

@@ -13,24 +13,24 @@
 
 
 class crontab_manager {
-	private $cronfile;
-	private $handle;
+	private $cron_file;
+	private $path;
 	private $cronexec;
 	
 	function __construct($tempdir = null, $cronpath = null) { 
+	  // setup tempdir
 	  if (is_null($tempdir)) {
   	    $this->path      = dirname(dirname(__FILE__)) . '/';	  	
 	  } else {
-		$this->path    = $tempdir;
+		$this->path      = $tempdir;
 	  }
+	  // setup cron executable path
 	  if (is_null($cronpath)) {
 		$this->cronexec  = "crontab";
 	  } else {
 	    $this->cronexec  = $cronpath;	
 	  }
-	  $this->handle    = 'crontab.txt';
-	  $this->cronfile = "{$this->path}{$this->handle}";
-//echo "CrontabMgr:  using file {$this->cronfile} with exec {$this->cronexec}\n";	
+	  $this->cron_file = "{$this->path}crontab.txt";
 	  return $this;
 	}
 	public function append_cronjob($cron_jobs=NULL) {
@@ -111,7 +111,8 @@ class crontab_manager {
 		return $cron_array;
 	}
 	private function crontab_file_exists() {
-		return file_exists($this->cron_file);  
+		$rc = file_exists($this->cron_file);  
+		return $rc;
 	}
 	private function error_message($error) {
 //		die("ERROR: {$error} ");

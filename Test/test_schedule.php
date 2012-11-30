@@ -5,12 +5,12 @@
   // Note just uses what's in the DB to schedule a recording
   $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
   //
-  $program_id   = "EP000809390008";
-  $station_id   = 25147;
-  $program_time = "2012-11-28 09:00:00";
+  $program_id   = "EP000044222473";
+  $station_id   = 33424;
+  $program_time = "2012-11-30 17:00:00";
 
   // Query and set schedule 
-  $sql  = "select * from pvr_programs where program_id = '" . $program_id . "' and station_id = " . $station_id;
+  $sql  = "select * from pvr_schedule where program_id = '" . $program_id . "' and station_id = " . $station_id;
   $sql .= " and `time` = '" . $program_time . "'";
   $result = $DB->fetch_all($sql);
   $row    = $result[0];
@@ -21,7 +21,7 @@
 //  var_dump($row);
 //  echo "\n";
 
-  $schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR);
+  $schedule_manager = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR, $CRON_PATH);
   $schedule_manager->record_once($program_time, $channel, $channelMinor, $row);
 
   $rc = $schedule_manager->is_recorded($program_id, $channel, $channelMinor, $program_time);

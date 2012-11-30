@@ -22,6 +22,12 @@ Ideally this would be handled as a package for the various NAS systems.  You can
 *  Add an .htaccess file to restrict access to this application
 *  from the main directory type:  php setup.php   [ doesn't work from weblink ]
 
+If you're having issues with cronjobs make:
+* Web server user is listed in /usr/lib/cron/cron.allow if that file exists
+* Web server user is NOT listed in /usr/lib/cron/cron.deny file if that file exists.
+* Make sure the $CRON_PATH variable is set correctly
+* Make sure the Log directory is set to be writeable by the web server user (along with recordings)
+
 To Do
 -----
 
