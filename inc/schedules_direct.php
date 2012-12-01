@@ -50,9 +50,9 @@
       }
 
       foreach ($data->xtvd->programs->program as $i => $value) {
-        $title=mysql_real_escape_string( $value->title );
-        if(isset($value->subtitle)) {$subtitle=mysql_real_escape_string( $value->subtitle); } else {$subtitle = '';}
-        if(isset($value->description)) {$description=mysql_real_escape_string( $value->description);} else {$description = '';}
+        $title=PDO::quote( $value->title );
+        if(isset($value->subtitle)) {$subtitle=PDO::quote( $value->subtitle); } else {$subtitle = '';}
+        if(isset($value->description)) {$description=PDO::quote( $value->description);} else {$description = '';}
         if(isset($value->originalAirDate)) {$originalAirDate = $value->originalAirDate;} else {$originalAirDate = '';}
         if(isset($value->series)) {$series = $value->series;} else {$series = '';}
         if(isset($value->showType)) {$showType = $value->showType;} else {$showType = '';}
