@@ -20,8 +20,8 @@
     public function update($data) {
 	    // This fuction updates show schedules in the DB...
       foreach ($data->xtvd->stations->station as $i => $value) {
-        $affiliate = mysql_real_escape_string( $value->affiliate );
-        $name      = mysql_real_escape_string( $value->name );
+        $affiliate = PDO::quote( $value->affiliate );
+        $name      = PDO::quote( $value->name );
         $sql       = "insert ignore into stations set `id` = '{$value->id}', `fccChannelNumber` = '{$value->fccChannelNumber}', ";
         $sql      .= "`callSign` = '{$value->callSign}', `name` = '" . $name . "', `affiliate` = '" . $affiliate ."'";
 
