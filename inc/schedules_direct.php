@@ -20,8 +20,8 @@
     public function update($data) {
 	    // This fuction updates show schedules in the DB...
       foreach ($data->xtvd->stations->station as $i => $value) {
-        $affiliate = PDO::quote( $value->affiliate );
-        $name      = PDO::quote( $value->name );
+        $affiliate = $this->db->quote($value->affiliate);
+        $name      = $this->db->quote($value->name);
         $sql       = "insert ignore into stations set `id` = '{$value->id}', `fccChannelNumber` = '{$value->fccChannelNumber}', ";
         $sql      .= "`callSign` = '{$value->callSign}', `name` = '" . $name . "', `affiliate` = '" . $affiliate ."'";
 
@@ -51,8 +51,8 @@
 
       foreach ($data->xtvd->programs->program as $i => $value) {
         $title=PDO::quote( $value->title );
-        if(isset($value->subtitle)) {$subtitle=PDO::quote( $value->subtitle); } else {$subtitle = '';}
-        if(isset($value->description)) {$description=PDO::quote( $value->description);} else {$description = '';}
+        if(isset($value->subtitle)) {$subtitle=$this->db->quote($value->subtitle); } else {$subtitle = '';}
+        if(isset($value->description)) {$description=$this->db->quote($value->description);} else {$description = '';}
         if(isset($value->originalAirDate)) {$originalAirDate = $value->originalAirDate;} else {$originalAirDate = '';}
         if(isset($value->series)) {$series = $value->series;} else {$series = '';}
         if(isset($value->showType)) {$showType = $value->showType;} else {$showType = '';}

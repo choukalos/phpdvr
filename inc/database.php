@@ -59,6 +59,9 @@
 	  public function check() {
 	    echo "Its Alive!\n";	
 	  }
+	  public function quote($string) {
+	 	 return $this->dbh->quote($string);
+	  }
 	  // ------------ Private Functions -----------
 	  private function connect($database) {
 		$host     = $this->host;
