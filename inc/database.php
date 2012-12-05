@@ -41,6 +41,7 @@
 	  public function execute($sql) {
 		try {
 		 $db = $this->dbh;		
+#echo "Exec SQL: $sql \n";
 		 $result = $db->exec($sql);
 		 return $result;
 	    } 
@@ -60,7 +61,13 @@
 	    echo "Its Alive!\n";	
 	  }
 	  public function quote($string) {
-	 	 return $this->dbh->quote($string);
+		 if (is_null($string) or empty($string)) {
+			$quoted = "''";
+		 } else {
+			 $quoted = $this->dbh->quote($string);			
+		 }
+//echo "Got string:  $string and returned $quoted\n";		
+		 return $quoted;
 	  }
 	  // ------------ Private Functions -----------
 	  private function connect($database) {

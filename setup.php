@@ -58,7 +58,16 @@
       $rc = true;
     }
     return $rc;
-  }    
+  }
+  function setup_cronjobs($LOG_DIR,$CRON_PATH,$DAILY_SCRIPT) {
+	$cronjob = new crontab_manager($LOG_DIR,$CRON_PATH);
+	$cronjob->remove_cronjob("mypvr_record.php");
+	$cronjob->remove_cronjob("mypvr_dailiy.php");
+	// Now setup daily pvr run in cron.  Trigger at midnight everynight
+	$dailyjob = "0 0 * * * /usr/bin/php $DAILY_SCRIPT > /dev/null";
+	$cronjob->append_cronjob($dailyjob);
+	return true;
+  }
   // -------------------------------------------
   // Main code
   if (!file_exists($DO_INSTALL)) {
@@ -69,7 +78,7 @@
 	
 print_r ($DB);
 echo "\n\n";	
-	
+	$rc = setup_cronjobs($LOG_DIR,$CRON_PATH,$DAILY_SCRIPT);
     $rc = setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
     if ($rc) {
 	  $rc = setup_schedules_direct($SD_USER, $SD_PASS, &$DB);

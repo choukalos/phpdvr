@@ -21,14 +21,42 @@
 	<integer>291</integer>
 	<key>metaData</key>
 	<dict>
+		<key>inc/database.php</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>18</integer>
+				<key>line</key>
+				<integer>43</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>29</integer>
+		</dict>
 		<key>inc/schedules_direct.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>64</integer>
+				<integer>55</integer>
 				<key>line</key>
-				<integer>54</integer>
+				<integer>62</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>106</integer>
+		</dict>
+		<key>setup.php</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>23</integer>
+				<key>line</key>
+				<integer>12</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -39,10 +67,12 @@
 	<key>openDocuments</key>
 	<array>
 		<string>inc/schedules_direct.php</string>
+		<string>setup.php</string>
+		<string>inc/database.php</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{505, 54}, {806, 604}}</string>
+	<string>{{364, 38}, {806, 604}}</string>
 </dict>
 </plist>
