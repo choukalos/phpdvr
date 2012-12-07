@@ -15,6 +15,7 @@ $SD_PASS = "choukalos1";
 $FFMPEG_PATH      = "/usr/bin/ffmpeg";
 $HDHOMERUN_PATH   = "/usr/local/bin/hdhomerun_config";
 $CRON_PATH        = "/usr/bin/crontab";
+$MYSQL_PATH       = "/usr/local/mysql/bin/mysql";
 // ------------------------------------------------
 
 // Global Variables
@@ -25,7 +26,7 @@ $RECORDING_SCRIPT = dirname(__FILE__) . "/mypvr_record.php";
 $DAILY_SCRIPT     = dirname(__FILE__) . "/mypvr_daily.php";
 $TEMPLATE_DIR     = dirname(__FILE__) . "/template/";
 $LOG_DIR          = dirname(__FILE__) . "/logs/";
-$DO_INSTALL       = dirname(__FILE__) . "/install.txt";
+$DO_INSTALL       = dirname(__FILE__) . "/logs/install.txt";
 // Require utility classes and functions
 require_once(dirname(__FILE__) . "/inc/utility.php");
 require_once(dirname(__FILE__) . "/inc/cron.php");

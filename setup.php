@@ -7,16 +7,22 @@
   // Assume this script runs (in general) only once
   
   // Setup functions
-  function setup_create_db(&$DB, $DB_USER, $DB_PASS, $DB_HOST, $DB_NAME, $ROOT_DIR) {
+  function setup_create_db(&$DB, $DB_USER, $DB_PASS, $DB_HOST, $DB_NAME, $ROOT_DIR, $MYSQL_PATH) {
     // Connect to DB and setup database
     $sql = "create database $DB_NAME;";
     $DB->execute($sql);
     usleep(50000);                          // Delay 1/20th of a second so create command finishes before tables are created
 //   sleep(1); 
    // Create the tables in the database
-    $cmd = "mysql -h " . $DB_HOST . " -u" . $DB_USER . " ";
-    if ($DB_PASS != "") {
-	  $cmd .= " -p" . $DB_PASS . " ";
+    $mysql_path_ping = exec("which mysql");
+    if (empty($mysql_path_ping)) {
+	  $cmd = $MYSQL_PATH;
+    } else {
+	  $cmd = "mysql";
+    }
+    $cmd .= " -h " . $DB_HOST . " -u " . $DB_USER . " ";
+    if (!empty($DB_PASS)) {
+	  $cmd .= " -p " . $DB_PASS . " ";
     }
     $cmd .= $DB_NAME . " < " . $ROOT_DIR . "db/db.sql ";
 //    $cmd .= " < " . $ROOT_DIR . "db/db.sql ";
@@ -24,10 +30,10 @@
     $rc = exec($cmd);
     echo " Got: " . $rc . "</p>\n";
     echo "<p>Finished creating database tables</p>\n";
-    // select the DB
-    $DB = $DB->change_database($DB_NAME);
-    echo "<p>changed to $DB_NAME database</p>\n";
-    return $DB;
+    // select the DB and close out the old connection
+    $DB->close();
+    $NEWDB = null;
+    return $NEWDB;
   }
   function setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR) {
     $hdhomerun = new hardware(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
@@ -68,30 +74,63 @@
 	$cronjob->append_cronjob($dailyjob);
 	return true;
   }
+  function finalize_install($DO_INSTALL) {
+    // Write file install.txt to prevent install loop from happening again 
+	$fh = fopen("{$DO_INSTALL}", "w");
+	fwrite($fh,"Installed\n");
+	fclose($fh);
+	return true;
+  }
   // -------------------------------------------
   // Main code
   if (!file_exists($DO_INSTALL)) {
-	// setup software
-	echo "<p>Starting Install .... </p>\n";
-	echo "<p> Root URL: " . $ROOT_DIR . " </p>\n";
-	$DB = setup_create_db($DB,$DB_USER,$DB_PASS,$DB_HOST,$DB_NAME, $ROOT_DIR);	
-	
-print_r ($DB);
-echo "\n\n";	
-	$rc = setup_cronjobs($LOG_DIR,$CRON_PATH,$DAILY_SCRIPT);
-    $rc = setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
-    if ($rc) {
+	// setup software and deterimne which step we're in
+	// step 1 -> setup db & cronjobs
+	// step 2 -> setup cron
+	// step 3 -> scan hdhomerun
+	// step 4 -> load schedules
+	// step 5 -> link and write install.txt
+	if (!isset($_GET["stage"])) {
+	  echo "<p>Starting Install .... </p>\n";
+	  echo "<p> Root URL: " . $ROOT_DIR . " </p>\n";
+	  echo "<p> Setting up Database and Cronjobs.....\n";
+	  $DB = setup_create_db($DB,$DB_USER,$DB_PASS,$DB_HOST,$DB_NAME, $ROOT_DIR, $MYSQL_PATH);	
+	  $rc = setup_cronjobs($LOG_DIR,$CRON_PATH,$DAILY_SCRIPT);
+	  if (!$rc) { 
+		echo " FAILED!  Check database access rights!</p>\n"; 
+	  } else {
+		// Redirect to index, stage 2
+	    header("refresh: 1; setup.php?stage=2");
+	  }
+	} elseif ($_GET["stage"] == 2) {
+	  // HDhomerun scan
+	  echo "<p> Scanning HDHOMERUN channels .....";
+	  $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
+	  $rc = setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
+	  if (!$rc) {
+		echo " FAILED!  Check hdhomerun_config path to make sure it's installed!</p>\n";
+	  } else {
+	    // Redirect to index, stage 3	
+	    header("refresh: 1; setup.php?stage=3");
+	  }	
+	} elseif ($_GET["stage"] == 3) {
+	  // schedules direct scan
+	  echo "<p> Pulling scheduling data from schedules direct...";
+	  $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
 	  $rc = setup_schedules_direct($SD_USER, $SD_PASS, &$DB);
-    }
-    if ($rc) {
-	  // all good now...
-	  $fh = fopen("{$DO_INSTALL}", "w");
-	  fwrite($fh,"Installed\n");
-	  fclose($fh);
-echo "<p>creating $DO_INSTALL file to flag system install has been completed </p>";
+	  if (!$rc) {
+		 echo " FAILED!  Check schedules direct login credentials and antenna setup<p>\n";
+	  } else {
+		 // Redirect to index, stage 4
+		header("refresh: 1; setup.php?stage=4");
+	  }
+	} elseif ($_GET["stage"] == 4) {
+	  $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
+      $rc = finalize_install($DO_INSTALL);
+      echo "<p>creating $DO_INSTALL file to flag system install has been completed </p>";
 	  echo "<p><b>Completed Setup</b></p>\n";
 	  echo "<br/><p>You will be redirected in 5 seconds</p>\n";
-	  // header("refresh: 5; index.php");	
+	  header("refresh: 5; index.php");	
     }
     // end of setup logic
   } else {
