@@ -20,9 +20,9 @@
     } else {
 	  $cmd = "mysql";
     }
-    $cmd .= " -h " . $DB_HOST . " -u " . $DB_USER . " ";
+    $cmd .= " -h " . $DB_HOST . " -u" . $DB_USER . " ";
     if (!empty($DB_PASS)) {
-	  $cmd .= " -p " . $DB_PASS . " ";
+	  $cmd .= " -p" . $DB_PASS . " ";
     }
     $cmd .= $DB_NAME . " < " . $ROOT_DIR . "db/db.sql ";
 //    $cmd .= " < " . $ROOT_DIR . "db/db.sql ";
