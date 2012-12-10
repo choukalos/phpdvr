@@ -13,7 +13,7 @@
   $guidedata->update($sd_data);
   echo "Updated guide data - now updating season pass recording schedules\n";
   // Update season pass recording schedules
-  $scheduler = new schedule_manager($DB, $RECORDING_DIR);
+  $scheduler = new schedule_manager($DB, $RECORDING_DIR, $LOG_DIR, $CRON_PATH);
   $scheduler->update_schedule();
   // Done
   echo "MYPVR_DAILY - End of Daily Processing ... \n";
