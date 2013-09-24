@@ -36,7 +36,7 @@
     return $NEWDB;
   }
   function setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR) {
-    $hdhomerun = new hardware(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
+    $hdhomerun = new hardware($DB, $HDHOMERUN_PATH, $LOG_DIR);
     $rc        = $hdhomerun->setup();
     if ($rc) {
       echo "<p>setup HDHomerun and scanning for channels</p>\n";
@@ -47,7 +47,7 @@
   }
   function setup_schedules_direct($SD_USER, $SD_PASS, &$DB) {
 	// Kick off initial schedules_direct scan
-    $guidedata = new schedules_direct($SD_USER, $SD_PASS, &$DB);
+    $guidedata = new schedules_direct($SD_USER, $SD_PASS, $DB);
     $sd_data   = $guidedata->fetch(0);
     if (is_null($sd_data)) {
 	  $rc = false;
@@ -106,7 +106,7 @@
 	  // HDhomerun scan
 	  echo "<p> Scanning HDHOMERUN channels .....";
 	  $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
-	  $rc = setup_hdhomerun(&$DB, $HDHOMERUN_PATH, $LOG_DIR);
+	  $rc = setup_hdhomerun($DB, $HDHOMERUN_PATH, $LOG_DIR);
 	  if (!$rc) {
 		echo " FAILED!  Check hdhomerun_config path to make sure it's installed!</p>\n";
 	  } else {
@@ -117,7 +117,7 @@
 	  // schedules direct scan
 	  echo "<p> Pulling scheduling data from schedules direct...";
 	  $DB = new database($DB_USER, $DB_PASS, $DB_HOST, $DB_NAME );
-	  $rc = setup_schedules_direct($SD_USER, $SD_PASS, &$DB);
+	  $rc = setup_schedules_direct($SD_USER, $SD_PASS, $DB);
 	  if (!$rc) {
 		 echo " FAILED!  Check schedules direct login credentials and antenna setup<p>\n";
 	  } else {

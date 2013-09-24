@@ -4,13 +4,13 @@
 date_default_timezone_set('America/Chicago');
 $DB_HOST = "localhost";
 $DB_PORT = "3306";
-$DB_USER = "root";
-$DB_PASS = "";
+$DB_USER = "YOURDBUSER";
+$DB_PASS = "YOURPASSWORD";
 $DB_NAME = "phpdvr";
 //$DB_NAME = "webpvr";
   // Schedules Direct user/password
-$SD_USER = "choukalos";
-$SD_PASS = "choukalos1";
+$SD_USER = "YOURSDUSER";
+$SD_PASS = "YOURPASSWORD";
   // expected program paths
 $FFMPEG_PATH      = "/usr/bin/ffmpeg";
 $HDHOMERUN_PATH   = "/usr/local/bin/hdhomerun_config";
