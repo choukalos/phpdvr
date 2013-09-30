@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>config.php</string>
+	<string>setup.php</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -21,43 +21,43 @@
 	<integer>291</integer>
 	<key>metaData</key>
 	<dict>
-		<key>config.php</key>
+		<key>index.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>22</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>28</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>21</integer>
+			<integer>0</integer>
 		</dict>
-		<key>recordings.php</key>
+		<key>setup.php</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>9</integer>
+				<integer>32</integer>
 				<key>line</key>
-				<integer>25</integer>
+				<integer>123</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>27</integer>
+			<integer>111</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>recordings.php</string>
-		<string>config.php</string>
+		<string>index.php</string>
+		<string>setup.php</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{444, 246}, {806, 604}}</string>
+	<string>{{149, 353}, {806, 604}}</string>
 </dict>
 </plist>
